@@ -23,11 +23,8 @@ partial class Form1
         _btnRotateLeft = new Button();
         _btnRotateRight = new Button();
         _pbStatus = new ProgressBar();
-        _btnJpgPath = new Button();
-        _btnRawPath = new Button();
+        _btnOrganize = new Button();
         _btnTransfer = new Button();
-        _lblJpg = new Label();
-        _lblRaw = new Label();
         _btnThemeToggle = new Button();
         ((System.ComponentModel.ISupportInitialize)_picDisplay).BeginInit();
         SuspendLayout();
@@ -83,55 +80,22 @@ partial class Form1
         _pbStatus.Size = new Size(1552, 24);
         _pbStatus.TabIndex = 3;
         // 
-        // _lblJpg
+        // _btnOrganize
         // 
-        _lblJpg.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-        _lblJpg.Location = new Point(16, 612);
-        _lblJpg.Name = "_lblJpg";
-        _lblJpg.Size = new Size(100, 40);
-        _lblJpg.TabIndex = 4;
-        _lblJpg.Text = "JPG 檔案位置";
-        _lblJpg.TextAlign = ContentAlignment.MiddleLeft;
-        // 
-        // _btnJpgPath
-        // 
-        _btnJpgPath.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        _btnJpgPath.BackColor = Color.White;
-        _btnJpgPath.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
-        _btnJpgPath.FlatStyle = FlatStyle.Flat;
-        _btnJpgPath.Location = new Point(122, 612);
-        _btnJpgPath.Name = "_btnJpgPath";
-        _btnJpgPath.Size = new Size(1230, 40);
-        _btnJpgPath.TabIndex = 5;
-        _btnJpgPath.Text = " 📂 請點擊選擇 JPG 資料夾...";
-        _btnJpgPath.TextAlign = ContentAlignment.MiddleLeft;
-        _btnJpgPath.UseVisualStyleBackColor = false;
-        _btnJpgPath.Click += btnJpgPath_Click;
-        // 
-        // _lblRaw
-        // 
-        _lblRaw.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-        _lblRaw.Location = new Point(16, 660);
-        _lblRaw.Name = "_lblRaw";
-        _lblRaw.Size = new Size(100, 40);
-        _lblRaw.TabIndex = 6;
-        _lblRaw.Text = "RAW 檔案位置";
-        _lblRaw.TextAlign = ContentAlignment.MiddleLeft;
-        // 
-        // _btnRawPath
-        // 
-        _btnRawPath.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        _btnRawPath.BackColor = Color.White;
-        _btnRawPath.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
-        _btnRawPath.FlatStyle = FlatStyle.Flat;
-        _btnRawPath.Location = new Point(122, 660);
-        _btnRawPath.Name = "_btnRawPath";
-        _btnRawPath.Size = new Size(1230, 40);
-        _btnRawPath.TabIndex = 7;
-        _btnRawPath.Text = " 📁 請點擊選擇 RAW 資料夾...";
-        _btnRawPath.TextAlign = ContentAlignment.MiddleLeft;
-        _btnRawPath.UseVisualStyleBackColor = false;
-        _btnRawPath.Click += btnRawPath_Click;
+        _btnOrganize.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        _btnOrganize.BackColor = Color.FromArgb(217, 34, 139, 34);
+        _btnOrganize.FlatAppearance.BorderSize = 0;
+        _btnOrganize.FlatAppearance.MouseDownBackColor = Color.FromArgb(255, 20, 100, 20);
+        _btnOrganize.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 46, 184, 46);
+        _btnOrganize.FlatStyle = FlatStyle.Flat;
+        _btnOrganize.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+        _btnOrganize.ForeColor = Color.White;
+        _btnOrganize.Location = new Point(1152, 612);
+        _btnOrganize.Name = "_btnOrganize";
+        _btnOrganize.Size = new Size(200, 88);
+        _btnOrganize.TabIndex = 4;
+        _btnOrganize.Text = "📦 整理照片";
+        _btnOrganize.UseVisualStyleBackColor = false;
         // 
         // _btnTransfer
         // 
@@ -204,10 +168,7 @@ partial class Form1
         ClientSize = new Size(1584, 762);
         Controls.Add(_btnThemeToggle);
         Controls.Add(_btnTransfer);
-        Controls.Add(_btnRawPath);
-        Controls.Add(_lblRaw);
-        Controls.Add(_btnJpgPath);
-        Controls.Add(_lblJpg);
+        Controls.Add(_btnOrganize);
         Controls.Add(_pbStatus);
         Controls.Add(_picDisplay);
         _picDisplay.Controls.Add(_btnPrev);
@@ -229,10 +190,7 @@ partial class Form1
     private Button _btnRotateLeft;
     private Button _btnRotateRight;
     private ProgressBar _pbStatus;
-    private Label _lblJpg;
-    private Button _btnJpgPath;
-    private Label _lblRaw;
-    private Button _btnRawPath;
+    private Button _btnOrganize;
     private Button _btnTransfer;
     private Button _btnThemeToggle;
 }
