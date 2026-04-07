@@ -260,7 +260,7 @@ public partial class Form1 : Form
         {
             if (_picDisplay.Image == null) return;
             
-            float zoomStep = e.Delta > 0 ? 1.1f : 1 / 1.1f;
+            float zoomStep = e.Delta > 0 ? 1.08f : 1 / 1.08f;
             
             var elements = _transformMatrix.Elements;
             float currentZoom = elements[0];
@@ -268,11 +268,8 @@ public partial class Form1 : Form
             if (zoomStep < 1 && currentZoom < 0.01f) return;
 
             // 正確的以滑鼠位置為中心縮放:
-            // 1. 將滑鼠位置移到原點 (Append 模式)
             _transformMatrix.Translate(-e.X, -e.Y, MatrixOrder.Append);
-            // 2. 縮放
             _transformMatrix.Scale(zoomStep, zoomStep, MatrixOrder.Append);
-            // 3. 移回原滑鼠位置
             _transformMatrix.Translate(e.X, e.Y, MatrixOrder.Append);
             
             _isInteracting = true;
@@ -284,7 +281,32 @@ public partial class Form1 : Form
         _picDisplay.MouseDoubleClick += (s, e) => 
         {
             if (_picDisplay.Image == null) return;
-            ResetZoom();
+            
+            var elements = _transformMatrix.Elements;
+            float currentZoom = elements[0];
+            
+            // 獲取初始缩放比例 (Fit)
+            var canvasSize = _picDisplay.ClientSize;
+            var imageSize = _picDisplay.Image.Size;
+            float fitZoom = Math.Min((float)canvasSize.Width / imageSize.Width, (float)canvasSize.Height / imageSize.Height);
+
+            // 如果目前缩放倍率與初始倍率差異較大 (例如大於 10%)，則重設
+            if (Math.Abs(currentZoom - fitZoom) > 0.01f)
+            {
+                ResetZoom();
+            }
+            else
+            {
+                float zoomStep = 2.0f; // 放大 100% (即變為 2 倍)
+                
+                _transformMatrix.Translate(-e.X, -e.Y, MatrixOrder.Append);
+                _transformMatrix.Scale(zoomStep, zoomStep, MatrixOrder.Append);
+                _transformMatrix.Translate(e.X, e.Y, MatrixOrder.Append);
+            }
+            
+            _isInteracting = true;
+            _qualityTimer.Stop();
+            _qualityTimer.Start();
             _picDisplay.Invalidate();
         };
 
