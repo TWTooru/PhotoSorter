@@ -20,6 +20,8 @@ partial class Form1
         _picDisplay = new PictureBox();
         _btnPrev = new Button();
         _btnNext = new Button();
+        _btnRotateLeft = new Button();
+        _btnRotateRight = new Button();
         _pbStatus = new ProgressBar();
         _btnJpgPath = new Button();
         _btnRawPath = new Button();
@@ -36,36 +38,42 @@ partial class Form1
         _picDisplay.Location = new Point(16, 16);
         _picDisplay.Name = "_picDisplay";
         _picDisplay.Size = new Size(1552, 540);
-        _picDisplay.SizeMode = PictureBoxSizeMode.Zoom;
+        _picDisplay.SizeMode = PictureBoxSizeMode.Normal;
         _picDisplay.TabIndex = 0;
         _picDisplay.TabStop = false;
         _picDisplay.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         // 
         // _btnPrev
         // 
-        _btnPrev.BackColor = Color.FromArgb(217, 255, 255, 255);
+        _btnPrev.BackColor = Color.FromArgb(102, 0, 0, 0);
         _btnPrev.FlatAppearance.BorderSize = 0;
-        _btnPrev.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 255, 255, 255);
+        _btnPrev.FlatAppearance.MouseOverBackColor = Color.FromArgb(150, 0, 0, 0);
         _btnPrev.FlatStyle = FlatStyle.Flat;
+        _btnPrev.ForeColor = Color.White;
         _btnPrev.Location = new Point(0, 206);
         _btnPrev.Name = "_btnPrev";
         _btnPrev.Size = new Size(64, 128);
         _btnPrev.TabIndex = 1;
         _btnPrev.Text = "<";
         _btnPrev.UseVisualStyleBackColor = false;
+        _btnPrev.Visible = true;
+        _btnPrev.Anchor = AnchorStyles.Left;
         // 
         // _btnNext
         // 
-        _btnNext.BackColor = Color.FromArgb(217, 255, 255, 255);
+        _btnNext.BackColor = Color.FromArgb(102, 0, 0, 0);
         _btnNext.FlatAppearance.BorderSize = 0;
-        _btnNext.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 255, 255, 255);
+        _btnNext.FlatAppearance.MouseOverBackColor = Color.FromArgb(150, 0, 0, 0);
         _btnNext.FlatStyle = FlatStyle.Flat;
+        _btnNext.ForeColor = Color.White;
         _btnNext.Location = new Point(1488, 206);
         _btnNext.Name = "_btnNext";
         _btnNext.Size = new Size(64, 128);
         _btnNext.TabIndex = 2;
         _btnNext.Text = ">";
         _btnNext.UseVisualStyleBackColor = false;
+        _btnNext.Visible = true;
+        _btnNext.Anchor = AnchorStyles.Right;
         // 
         // _pbStatus
         // 
@@ -157,6 +165,38 @@ partial class Form1
         _btnThemeToggle.UseVisualStyleBackColor = false;
         _btnThemeToggle.Click += btnThemeToggle_Click;
         // 
+        // _btnRotateLeft
+        // 
+        _btnRotateLeft.BackColor = Color.FromArgb(102, 0, 0, 0);
+        _btnRotateLeft.FlatAppearance.BorderSize = 0;
+        _btnRotateLeft.FlatAppearance.MouseOverBackColor = Color.FromArgb(150, 0, 0, 0);
+        _btnRotateLeft.FlatStyle = FlatStyle.Flat;
+        _btnRotateLeft.ForeColor = Color.White;
+        _btnRotateLeft.Font = new Font("Segoe UI", 12F);
+        _btnRotateLeft.Location = new Point(1416, 472);
+        _btnRotateLeft.Name = "_btnRotateLeft";
+        _btnRotateLeft.Size = new Size(64, 64);
+        _btnRotateLeft.TabIndex = 10;
+        _btnRotateLeft.Text = "⟲";
+        _btnRotateLeft.UseVisualStyleBackColor = false;
+        _btnRotateLeft.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        // 
+        // _btnRotateRight
+        // 
+        _btnRotateRight.BackColor = Color.FromArgb(102, 0, 0, 0);
+        _btnRotateRight.FlatAppearance.BorderSize = 0;
+        _btnRotateRight.FlatAppearance.MouseOverBackColor = Color.FromArgb(150, 0, 0, 0);
+        _btnRotateRight.FlatStyle = FlatStyle.Flat;
+        _btnRotateRight.ForeColor = Color.White;
+        _btnRotateRight.Font = new Font("Segoe UI", 12F);
+        _btnRotateRight.Location = new Point(1488, 472);
+        _btnRotateRight.Name = "_btnRotateRight";
+        _btnRotateRight.Size = new Size(64, 64);
+        _btnRotateRight.TabIndex = 11;
+        _btnRotateRight.Text = "⟳";
+        _btnRotateRight.UseVisualStyleBackColor = false;
+        _btnRotateRight.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        // 
         // Form1
         // 
         AutoScaleDimensions = new SizeF(9F, 19F);
@@ -172,8 +212,11 @@ partial class Form1
         Controls.Add(_picDisplay);
         _picDisplay.Controls.Add(_btnPrev);
         _picDisplay.Controls.Add(_btnNext);
+        _picDisplay.Controls.Add(_btnRotateLeft);
+        _picDisplay.Controls.Add(_btnRotateRight);
         Name = "Form1";
         Text = "快速挑選照片";
+        KeyPreview = true;
         ((System.ComponentModel.ISupportInitialize)_picDisplay).EndInit();
         ResumeLayout(false);
     }
@@ -183,6 +226,8 @@ partial class Form1
     private PictureBox _picDisplay;
     private Button _btnPrev;
     private Button _btnNext;
+    private Button _btnRotateLeft;
+    private Button _btnRotateRight;
     private ProgressBar _pbStatus;
     private Label _lblJpg;
     private Button _btnJpgPath;

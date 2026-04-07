@@ -117,36 +117,184 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="button1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>641, 542</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="_picDisplay.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Left, Right</value>
   </data>
-  <data name="button1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>145, 57</value>
+  <data name="_btnPrev.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="_btnPrev.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 206</value>
+  </data>
+  <data name="_btnPrev.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 128</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="button1.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="button1.Text" xml:space="preserve">
-    <value>轉移</value>
-  </data>
-  <data name="pictureBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 12</value>
-  </data>
-  <data name="pictureBox1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1545, 513</value>
-  </data>
-  <data name="pictureBox1.TabIndex" type="System.Int32, mscorlib">
+  <data name="_btnPrev.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
-  <data name="progressBar1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 552</value>
+  <data name="_btnPrev.Text" xml:space="preserve">
+    <value>&lt;</value>
   </data>
-  <data name="progressBar1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>530, 29</value>
+  <data name="_btnNext.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
   </data>
-  <data name="progressBar1.TabIndex" type="System.Int32, mscorlib">
+  <data name="_btnNext.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1488, 206</value>
+  </data>
+  <data name="_btnNext.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 128</value>
+  </data>
+  <data name="_btnNext.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
+  </data>
+  <data name="_btnNext.Text" xml:space="preserve">
+    <value>&gt;</value>
+  </data>
+  <data name="_picDisplay.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 16</value>
+  </data>
+  <data name="_picDisplay.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1552, 540</value>
+  </data>
+  <data name="_picDisplay.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode, System.Windows.Forms">
+    <value>Zoom</value>
+  </data>
+  <data name="_picDisplay.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="_pbStatus.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left, Right</value>
+  </data>
+  <data name="_pbStatus.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 572</value>
+  </data>
+  <data name="_pbStatus.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1552, 24</value>
+  </data>
+  <data name="_pbStatus.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="_btnJpgPath.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left, Right</value>
+  </data>
+  <data name="_btnJpgPath.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="_btnJpgPath.Location" type="System.Drawing.Point, System.Drawing">
+    <value>122, 612</value>
+  </data>
+  <data name="_btnJpgPath.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1230, 40</value>
+  </data>
+  <data name="_btnJpgPath.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="_btnJpgPath.Text" xml:space="preserve">
+    <value> 📂 請點擊選擇 JPG 資料夾...</value>
+  </data>
+  <data name="_btnJpgPath.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleLeft</value>
+  </data>
+  <data name="_btnRawPath.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left, Right</value>
+  </data>
+  <data name="_btnRawPath.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="_btnRawPath.Location" type="System.Drawing.Point, System.Drawing">
+    <value>122, 660</value>
+  </data>
+  <data name="_btnRawPath.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1230, 40</value>
+  </data>
+  <data name="_btnRawPath.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="_btnRawPath.Text" xml:space="preserve">
+    <value> 📁 請點擊選擇 RAW 資料夾...</value>
+  </data>
+  <data name="_btnRawPath.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleLeft</value>
+  </data>
+  <data name="_btnTransfer.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="_btnTransfer.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="_btnTransfer.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 14pt, style=Bold</value>
+  </data>
+  <data name="_btnTransfer.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1368, 612</value>
+  </data>
+  <data name="_btnTransfer.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 88</value>
+  </data>
+  <data name="_btnTransfer.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="_btnTransfer.Text" xml:space="preserve">
+    <value>➔ 執行轉移</value>
+  </data>
+  <data name="_lblJpg.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left</value>
+  </data>
+  <data name="_lblJpg.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 612</value>
+  </data>
+  <data name="_lblJpg.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 40</value>
+  </data>
+  <data name="_lblJpg.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="_lblJpg.Text" xml:space="preserve">
+    <value>JPG 檔案位置</value>
+  </data>
+  <data name="_lblJpg.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleLeft</value>
+  </data>
+  <data name="_lblRaw.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left</value>
+  </data>
+  <data name="_lblRaw.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 660</value>
+  </data>
+  <data name="_lblRaw.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 40</value>
+  </data>
+  <data name="_lblRaw.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="_lblRaw.Text" xml:space="preserve">
+    <value>RAW 檔案位置</value>
+  </data>
+  <data name="_lblRaw.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleLeft</value>
+  </data>
+  <data name="_btnThemeToggle.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="_btnThemeToggle.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="_btnThemeToggle.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 12pt</value>
+  </data>
+  <data name="_btnThemeToggle.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1520, 710</value>
+  </data>
+  <data name="_btnThemeToggle.Size" type="System.Drawing.Size, System.Drawing">
+    <value>48, 40</value>
+  </data>
+  <data name="_btnThemeToggle.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="_btnThemeToggle.Text" xml:space="preserve">
+    <value>🌙</value>
   </data>
 </root>
