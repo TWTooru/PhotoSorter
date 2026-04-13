@@ -48,6 +48,3 @@ Photo Sorter 是一款使用 C# Windows Forms 開發的照片篩選工具。
 *   **框架**：C# / .NET Windows Forms
 *   **影像處理**：GDI+ (`System.Drawing`)
 *   **效能優化**：Reflection 強制啟用雙重緩衝 (`DoubleBuffered`) 消除閃爍；使用 `System.Diagnostics.Stopwatch` 與 Timer 精準控制高/低畫質重繪時機。
-*   **框架**：C# / .NET Windows Forms
-*   **影像處理**：GDI+ (`System.Drawing`)
-*   **效能優化**：Reflection 強制啟用雙重緩衝 (`DoubleBuffered`) 消除閃爍；使用 `System.Diagnostics.Stopwatch` 與 Timer 精準控制高/低畫質重繪時機。
