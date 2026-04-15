@@ -24,6 +24,8 @@ partial class Form1
         _btnRotateRight = new Button();
         _btnOrganize = new Button();
         _btnPurge = new Button();
+        _btnMaybe = new Button();
+        _btnTrash = new Button();
         _btnThemeToggle = new Button();
         _splitLine = new Panel();
         ((System.ComponentModel.ISupportInitialize)_picDisplay).BeginInit();
@@ -82,10 +84,10 @@ partial class Form1
         _btnOrganize.BackColor = Color.FromArgb(217, 34, 139, 34);
         _btnOrganize.FlatAppearance.BorderSize = 0;
         _btnOrganize.FlatStyle = FlatStyle.Flat;
-        _btnOrganize.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+        _btnOrganize.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
         _btnOrganize.ForeColor = Color.White;
         _btnOrganize.Name = "_btnOrganize";
-        _btnOrganize.Size = new Size(200, 88);
+        _btnOrganize.Size = new Size(160, 60);
         _btnOrganize.Text = "📦 整理照片";
         // 
         // _btnPurge
@@ -93,11 +95,21 @@ partial class Form1
         _btnPurge.BackColor = Color.FromArgb(217, 220, 50, 50);
         _btnPurge.FlatAppearance.BorderSize = 0;
         _btnPurge.FlatStyle = FlatStyle.Flat;
-        _btnPurge.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+        _btnPurge.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
         _btnPurge.ForeColor = Color.White;
         _btnPurge.Name = "_btnPurge";
-        _btnPurge.Size = new Size(200, 88);
+        _btnPurge.Size = new Size(160, 60);
         _btnPurge.Text = "🗑️ 清空暫存";
+        // 
+        // _btnMaybe
+        // 
+        _btnMaybe.Name = "_btnMaybe";
+        _btnMaybe.Size = new Size(80, 80);
+        // 
+        // _btnTrash
+        // 
+        _btnTrash.Name = "_btnTrash";
+        _btnTrash.Size = new Size(80, 80);
         // 
         // _btnThemeToggle
         // 
@@ -117,9 +129,11 @@ partial class Form1
         AutoScaleDimensions = new SizeF(9F, 19F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1584, 861);
-        Controls.Add(_btnThemeToggle);
         Controls.Add(_btnOrganize);
         Controls.Add(_btnPurge);
+        Controls.Add(_btnMaybe);
+        Controls.Add(_btnTrash);
+        Controls.Add(_btnThemeToggle);
         Controls.Add(_splitLine);
         Controls.Add(_picDisplay);
         _picDisplay.Controls.Add(_btnPrev);
@@ -142,6 +156,8 @@ partial class Form1
     private Button _btnRotateRight;
     private Button _btnOrganize;
     private Button _btnPurge;
+    private Button _btnMaybe;
+    private Button _btnTrash;
     private Button _btnThemeToggle;
     private Panel _splitLine;
 }

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
+using Microsoft.VisualBasic.FileIO;
 
 namespace photo;
 
@@ -43,6 +44,11 @@ public partial class Form1 : Form
     private Color _notificationColor = Color.Transparent;
     private System.Windows.Forms.Timer _notificationTimer = new();
 
+    // 狀態與快取欄位
+    private string _exifInfo = string.Empty;
+    private string _prefetchedPath = string.Empty;
+    private Image? _prefetchedImage = null;
+
     public Form1()
     {
         InitializeComponent();
@@ -55,6 +61,7 @@ public partial class Form1 : Form
         SetupZoomAndPan();
         SetupOrganize();
         SetupPurge();
+        SetupActionButtons();
         
         this.Resize += (s, e) => LayoutControls();
         this.FormClosed += (s, e) => _transformMatrix?.Dispose();
@@ -86,10 +93,15 @@ public partial class Form1 : Form
         _btnRotateLeft.Location = new Point(_picDisplay.Width - 140, _picDisplay.Height - 80);
         _btnRotateRight.Location = new Point(_picDisplay.Width - 70, _picDisplay.Height - 80);
 
-        _btnOrganize.Location = new Point(this.ClientSize.Width - _btnOrganize.Width - padding, footerCenterY - (_btnOrganize.Height / 2));
-        _btnPurge.Location = new Point(_btnOrganize.Left - _btnPurge.Width - padding, footerCenterY - (_btnPurge.Height / 2));
+        // 中心圓形按鈕佈局 (Footer 區域中心)
+        int formCenterX = this.ClientSize.Width / 2;
+        _btnMaybe.Location = new Point(formCenterX - _btnMaybe.Width - 15, footerCenterY - (_btnMaybe.Height / 2));
+        _btnTrash.Location = new Point(formCenterX + 15, footerCenterY - (_btnTrash.Height / 2));
+
+        // 右下角功能按鈕
+        _btnOrganize.Location = new Point(this.ClientSize.Width - _btnOrganize.Width - padding, this.ClientSize.Height - _btnOrganize.Height - padding);
+        _btnPurge.Location = new Point(_btnOrganize.Left - _btnPurge.Width - 10, this.ClientSize.Height - _btnPurge.Height - padding);
         
-        // 將主題切換按鈕移至視窗最左下角
         _btnThemeToggle.Location = new Point(padding, this.ClientSize.Height - _btnThemeToggle.Height - padding);
 
         ResetZoom();
@@ -108,16 +120,47 @@ public partial class Form1 : Form
         _qualityTimer.Tick += (s, e) => { _isInteracting = false; _picDisplay.Invalidate(); _qualityTimer.Stop(); };
     }
 
+    private void SetupActionButtons()
+    {
+        void StyleButton(Button btn, Color baseColor, Color hoverColor, string icon, int yOffset) {
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.FlatAppearance.MouseOverBackColor = hoverColor;
+            btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, baseColor);
+            btn.BackColor = baseColor;
+            btn.Cursor = Cursors.Hand;
+            btn.Text = string.Empty; 
+
+            btn.Paint += (s, e) => {
+                var g = e.Graphics;
+                // 繪製圓形背景的抗鋸齒設定
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                
+                using var font = new Font("Segoe UI Emoji", 22F);
+                var flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding;
+                
+                // 建立一個微調後的矩形，將圖示向下壓一點點以修正視覺重心
+                var rect = btn.ClientRectangle;
+                rect.Offset(0, yOffset); 
+                
+                TextRenderer.DrawText(g, icon, font, rect, Color.Black, flags);
+            };
+        }
+
+        // 星星垂直居中通常較準，yOffset 設為 1；垃圾桶通常偏高，yOffset 設為 4 或 5
+        StyleButton(_btnMaybe, Color.FromArgb(255, 202, 40), Color.FromArgb(255, 179, 0), "⭐", 1);
+        StyleButton(_btnTrash, Color.FromArgb(239, 83, 80), Color.FromArgb(211, 47, 47), "🗑️", 4);
+        
+        _btnMaybe.Click += (s, e) => MoveToStaging();
+        _btnTrash.Click += (s, e) => DeleteToRecycleBin();
+    }
+
     private void SetupPurge()
     {
         _btnPurge.Click += async (s, e) => 
         {
-            if (string.IsNullOrEmpty(_rootPath)) 
-            {
-                MessageBox.Show("請先選擇資料夾。", "提示");
-                return;
-            }
-            var result = MessageBox.Show("確定要清空所有暫存檔案嗎？\n這將永久刪除「JPG暫存」、「raw暫存」或「暫存區」內的所有檔案且無法復原。", "確認清空", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (string.IsNullOrEmpty(_rootPath)) { MessageBox.Show("請先選擇資料夾。", "提示"); return; }
+            var result = MessageBox.Show("確定要清空所有暫存檔案嗎？\n這將永久刪除相關暫存資料夾內容且無法復原。", "確認清空", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (result == DialogResult.Yes) await ExecutePurgeAsync();
         };
     }
@@ -210,21 +253,69 @@ public partial class Form1 : Form
         _btnPrev.ForeColor = _btnNext.ForeColor = _btnRotateLeft.ForeColor = _btnRotateRight.ForeColor = Color.White;
     }
 
+    private void UpdateExifInfo(Image img)
+    {
+        try
+        {
+            string model = GetExifString(img, 0x0110);
+            string shutter = GetExifRational(img, 0x829A, true);
+            string aperture = GetExifRational(img, 0x829D, false);
+            string iso = GetExifShort(img, 0x8827);
+            string focal = GetExifRational(img, 0x920A, false);
+
+            _exifInfo = $"{model} | {shutter}s | f/{aperture} | ISO {iso} | {focal}mm";
+        }
+        catch { _exifInfo = "無 EXIF 資訊"; }
+        _picDisplay.Invalidate();
+    }
+
+    private string GetExifString(Image img, int id)
+    {
+        if (Array.IndexOf(img.PropertyIdList, id) < 0) return "Unknown";
+        var val = img.GetPropertyItem(id).Value;
+        return System.Text.Encoding.ASCII.GetString(val).Trim('\0', ' ');
+    }
+
+    private string GetExifShort(Image img, int id)
+    {
+        if (Array.IndexOf(img.PropertyIdList, id) < 0) return "Unknown";
+        var val = img.GetPropertyItem(id).Value;
+        return BitConverter.ToUInt16(val, 0).ToString();
+    }
+
+    private string GetExifRational(Image img, int id, bool isShutter)
+    {
+        if (Array.IndexOf(img.PropertyIdList, id) < 0) return "Unknown";
+        var val = img.GetPropertyItem(id).Value;
+        uint num = BitConverter.ToUInt32(val, 0);
+        uint den = BitConverter.ToUInt32(val, 4);
+        if (den == 0) return "0";
+        if (isShutter && num < den) return $"1/{den / num}";
+        return (num / (double)den).ToString("F1").Replace(".0", "");
+    }
+
     private void ApplyRoundedCorners()
     {
-        void SetRegion(Control btn) {
+        void SetRegion(Control btn, bool circular = false) {
             if (btn.ClientRectangle.Width == 0) return;
-            var path = new GraphicsPath(); var r = 12; var rect = btn.ClientRectangle;
-            path.AddArc(rect.X, rect.Y, r, r, 180, 90); path.AddArc(rect.Width - r, rect.Y, r, r, 270, 90);
-            path.AddArc(rect.Width - r, rect.Height - r, r, r, 0, 90); path.AddArc(rect.X, rect.Height - r, r, r, 90, 90);
-            path.CloseFigure(); btn.Region = new Region(path);
+            var path = new GraphicsPath();
+            if (circular) {
+                path.AddEllipse(btn.ClientRectangle);
+            } else {
+                var r = 12; var rect = btn.ClientRectangle;
+                path.AddArc(rect.X, rect.Y, r, r, 180, 90); path.AddArc(rect.Width - r, rect.Y, r, r, 270, 90);
+                path.AddArc(rect.Width - r, rect.Height - r, r, r, 0, 90); path.AddArc(rect.X, rect.Height - r, r, r, 90, 90);
+                path.CloseFigure();
+            }
+            btn.Region = new Region(path);
         }
-        _btnOrganize.HandleCreated += (s, e) => SetRegion(_btnOrganize);
-        _btnPurge.HandleCreated += (s, e) => SetRegion(_btnPurge);
-        _btnOrganize.Resize += (s, e) => SetRegion(_btnOrganize);
-        _btnPurge.Resize += (s, e) => SetRegion(_btnPurge);
-        if (_btnOrganize.IsHandleCreated) SetRegion(_btnOrganize);
-        if (_btnPurge.IsHandleCreated) SetRegion(_btnPurge);
+
+        var controls = new[] { (_btnOrganize, false), (_btnPurge, false), (_btnMaybe, true), (_btnTrash, true) };
+        foreach (var (ctl, isCirc) in controls) {
+            ctl.HandleCreated += (s, e) => SetRegion(ctl, isCirc);
+            ctl.Resize += (s, e) => SetRegion(ctl, isCirc);
+            if (ctl.IsHandleCreated) SetRegion(ctl, isCirc);
+        }
     }
 
     private void ShowNotification(string message, Color backColor)
@@ -239,7 +330,11 @@ public partial class Form1 : Form
         {
             _undoStack.Clear(); _rotationStates.Clear();
             _jpgFiles = await Task.Run(() => Directory.EnumerateFiles(path, "*.jpg").Union(Directory.EnumerateFiles(path, "*.jpeg")).OrderBy(f => f).ToList());
-            if (_jpgFiles.Count > 0) { _currentIndex = 0; DisplayImage(_jpgFiles[_currentIndex]); }
+            if (_jpgFiles.Count > 0) { 
+                _currentIndex = 0; 
+                await LoadThumbnailsAsync();
+                DisplayImage(_jpgFiles[_currentIndex]); 
+            }
         }
         catch (Exception ex) { MessageBox.Show($"載入錯誤: {ex.Message}"); }
     }
@@ -248,18 +343,64 @@ public partial class Form1 : Form
     {
         if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return;
         try {
-            var old = _picDisplay.Image; _picDisplay.Image = null; old?.Dispose();
-            using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            var img = Image.FromStream(stream);
-            if (Array.IndexOf(img.PropertyIdList, 0x0112) > -1) {
-                int orientation = img.GetPropertyItem(0x0112).Value[0];
-                RotateFlipType rf = RotateFlipType.RotateNoneFlipNone;
-                switch (orientation) { case 3: rf = RotateFlipType.Rotate180FlipNone; break; case 6: rf = RotateFlipType.Rotate90FlipNone; break; case 8: rf = RotateFlipType.Rotate270FlipNone; break; }
-                if (rf != RotateFlipType.RotateNoneFlipNone) img.RotateFlip(rf);
+            var old = _picDisplay.Image; _picDisplay.Image = null;
+            
+            // 檢查是否有預載入快取
+            if (filePath == _prefetchedPath && _prefetchedImage != null) {
+                _picDisplay.Image = _prefetchedImage;
+                _prefetchedImage = null; _prefetchedPath = string.Empty;
+            } else {
+                // 如果沒有快取，清理舊快取並手動載入
+                _prefetchedImage?.Dispose(); _prefetchedImage = null; _prefetchedPath = string.Empty;
+                old?.Dispose();
+                _picDisplay.Image = LoadImageInternal(filePath);
             }
-            if (_rotationStates.TryGetValue(filePath, out int rot)) for (int i = 0; i < rot; i++) img.RotateFlip(RotateFlipType.Rotate90FlipNone);
-            _picDisplay.Image = img; ResetZoom(); _picDisplay.Invalidate();
+
+            UpdateExifInfo(_picDisplay.Image); 
+            UpdateFilmstripSelection(); 
+            ResetZoom(); 
+            _picDisplay.Invalidate();
+
+            // 觸發預載入下一張
+            PrefetchNextImage();
         } catch { }
+    }
+
+    private Image LoadImageInternal(string filePath)
+    {
+        using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        var img = Image.FromStream(stream);
+        if (Array.IndexOf(img.PropertyIdList, 0x0112) > -1) {
+            int orientation = img.GetPropertyItem(0x0112).Value[0];
+            RotateFlipType rf = RotateFlipType.RotateNoneFlipNone;
+            switch (orientation) { case 3: rf = RotateFlipType.Rotate180FlipNone; break; case 6: rf = RotateFlipType.Rotate90FlipNone; break; case 8: rf = RotateFlipType.Rotate270FlipNone; break; }
+            if (rf != RotateFlipType.RotateNoneFlipNone) img.RotateFlip(rf);
+        }
+        if (_rotationStates.TryGetValue(filePath, out int rot)) for (int i = 0; i < rot; i++) img.RotateFlip(RotateFlipType.Rotate90FlipNone);
+        return img;
+    }
+
+    private void PrefetchNextImage()
+    {
+        if (_jpgFiles.Count <= 1 || _currentIndex < 0) return;
+        int nextIdx = (_currentIndex + 1) % _jpgFiles.Count;
+        string nextPath = _jpgFiles[nextIdx];
+
+        if (nextPath == _prefetchedPath) return;
+
+        Task.Run(() => {
+            try {
+                var img = LoadImageInternal(nextPath);
+                // 確保預載入期間沒有切換到其他圖片
+                if (nextPath == _jpgFiles[(_currentIndex + 1) % _jpgFiles.Count]) {
+                    _prefetchedImage?.Dispose();
+                    _prefetchedImage = img;
+                    _prefetchedPath = nextPath;
+                } else {
+                    img.Dispose();
+                }
+            } catch { }
+        });
     }
 
     private void SetupZoomAndPan()
@@ -287,9 +428,18 @@ public partial class Form1 : Form
                 g.InterpolationMode = _isInteracting ? InterpolationMode.Low : InterpolationMode.HighQualityBicubic;
                 g.Transform = _transformMatrix; g.DrawImage(_picDisplay.Image, 0, 0, _picDisplay.Image.Width, _picDisplay.Image.Height);
                 g.ResetTransform();
-                string fn = Path.GetFileName(_jpgFiles[_currentIndex]); var sz = g.MeasureString(fn, _fileNameFont);
-                var r = new RectangleF(10, _picDisplay.Height - sz.Height - 15, sz.Width + 10, sz.Height + 6);
-                g.FillRectangle(_fileNameBgBrush, r); g.DrawString(fn, _fileNameFont, Brushes.White, r.X + 5, r.Y + 3);
+                
+                // 繪製檔名
+                string fn = Path.GetFileName(_jpgFiles[_currentIndex]); var szFn = g.MeasureString(fn, _fileNameFont);
+                var rFn = new RectangleF(10, _picDisplay.Height - szFn.Height - 15, szFn.Width + 10, szFn.Height + 6);
+                g.FillRectangle(_fileNameBgBrush, rFn); g.DrawString(fn, _fileNameFont, Brushes.White, rFn.X + 5, rFn.Y + 3);
+
+                // 繪製 EXIF (位於檔名上方)
+                if (!string.IsNullOrEmpty(_exifInfo)) {
+                    var szExif = g.MeasureString(_exifInfo, _fileNameFont);
+                    var rExif = new RectangleF(10, rFn.Top - szExif.Height - 5, szExif.Width + 10, szExif.Height + 6);
+                    g.FillRectangle(_fileNameBgBrush, rExif); g.DrawString(_exifInfo, _fileNameFont, Brushes.LightGray, rExif.X + 5, rExif.Y + 3);
+                }
             }
             if (!string.IsNullOrEmpty(_notificationText)) {
                 var sz = g.MeasureString(_notificationText, _notificationFont);
@@ -317,7 +467,7 @@ public partial class Form1 : Form
         _btnRotateLeft.Click += (s, e) => Rotate(false); _btnRotateRight.Click += (s, e) => Rotate(true);
         this.KeyDown += (s, e) => {
             if (e.Control && e.KeyCode == Keys.Z) Undo();
-            else if (e.KeyCode == Keys.Delete) DeleteCurrentImage();
+            else if (e.KeyCode == Keys.Delete) DeleteToRecycleBin();
             else if (e.KeyCode == Keys.Q) _btnPrev.PerformClick();
             else if (e.KeyCode == Keys.E) _btnNext.PerformClick();
         };
@@ -341,10 +491,10 @@ public partial class Form1 : Form
         } catch (Exception ex) { MessageBox.Show($"復原失敗: {ex.Message}"); }
     }
 
-    private void DeleteCurrentImage() {
+    private void MoveToStaging() {
         if (string.IsNullOrEmpty(_rootPath) || _currentIndex < 0 || _currentIndex >= _jpgFiles.Count) return;
         string jpg = _jpgFiles[_currentIndex]; string fn = Path.GetFileNameWithoutExtension(jpg);
-        string jpgT = Path.Combine(_rootPath, "JPG暫存"), rawT = Path.Combine(_rootPath, "raw暫存"), rawP = Path.Combine(_rootPath, "暫存區");
+        string jpgT = Path.Combine(_rootPath, "JPG暫存"), rawT = Path.Combine(_rootPath, "raw暫存"), rawP = Path.Combine(_rootPath, "raw");
         var item = new UndoItem { OriginalJpgPath = jpg, Index = _currentIndex };
         try {
             var old = _picDisplay.Image; _picDisplay.Image = null; old?.Dispose();
@@ -352,18 +502,56 @@ public partial class Form1 : Form
             string destJ = Path.Combine(jpgT, Path.GetFileName(jpg)); if (File.Exists(destJ)) File.Delete(destJ);
             File.Move(jpg, destJ); item.TempJpgPath = destJ;
             if (Directory.Exists(rawP)) {
-                foreach (var rf in Directory.EnumerateFiles(Path.Combine(_rootPath, "raw"), fn + ".*")) {
+                foreach (var rf in Directory.EnumerateFiles(rawP, fn + ".*")) {
                     string dr = Path.Combine(rawT, Path.GetFileName(rf)); if (File.Exists(dr)) File.Delete(dr);
                     File.Move(rf, dr); item.RawPaths.Add((rf, dr));
                 }
             }
-            _undoStack.Push(item); _jpgFiles.RemoveAt(_currentIndex); ShowNotification("已刪除", Color.FromArgb(180, 220, 50, 50));
-            if (_jpgFiles.Count == 0) { _currentIndex = -1; _picDisplay.Invalidate(); }
-            else { if (_currentIndex >= _jpgFiles.Count) _currentIndex = _jpgFiles.Count - 1; DisplayImage(_jpgFiles[_currentIndex]); }
-        } catch (Exception ex) { MessageBox.Show($"移除失敗: {ex.Message}"); }
+            _undoStack.Push(item); _jpgFiles.RemoveAt(_currentIndex); ShowNotification("移至暫存區", Color.FromArgb(180, 255, 215, 0));
+            NextImage();
+        } catch (Exception ex) { MessageBox.Show($"移動失敗: {ex.Message}"); }
+    }
+
+    private void DeleteToRecycleBin() {
+        if (string.IsNullOrEmpty(_rootPath) || _currentIndex < 0 || _currentIndex >= _jpgFiles.Count) return;
+        string jpg = _jpgFiles[_currentIndex]; string fn = Path.GetFileNameWithoutExtension(jpg);
+        string rawP = Path.Combine(_rootPath, "raw");
+        try {
+            var old = _picDisplay.Image; _picDisplay.Image = null; old?.Dispose();
+            FileSystem.DeleteFile(jpg, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+            if (Directory.Exists(rawP)) {
+                foreach (var rf in Directory.EnumerateFiles(rawP, fn + ".*")) {
+                    FileSystem.DeleteFile(rf, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                }
+            }
+            _jpgFiles.RemoveAt(_currentIndex); ShowNotification("已移至垃圾桶", Color.FromArgb(180, 220, 50, 50));
+            NextImage();
+        } catch (Exception ex) { MessageBox.Show($"刪除失敗: {ex.Message}"); }
+    }
+
+    private void NextImage() {
+        if (_jpgFiles.Count == 0) { _currentIndex = -1; _picDisplay.Invalidate(); }
+        else { if (_currentIndex >= _jpgFiles.Count) _currentIndex = _jpgFiles.Count - 1; DisplayImage(_jpgFiles[_currentIndex]); }
     }
 
     private void btnThemeToggle_Click(object sender, EventArgs e) { _isDarkMode = !_isDarkMode; UpdateThemeColors(); SaveThemeSettings(); }
     private void LoadThemeSettings() { try { if (File.Exists(ThemeSettingsFile)) _isDarkMode = File.ReadAllText(ThemeSettingsFile).Trim() == "1"; } catch { } }
     private void SaveThemeSettings() { try { File.WriteAllText(ThemeSettingsFile, _isDarkMode ? "1" : "0"); } catch { } }
+
+    /// <summary>
+    /// 非同步載入縮圖（目前為存根，可根據需求實作縮圖快取邏輯）。
+    /// </summary>
+    private async Task LoadThumbnailsAsync()
+    {
+        // 實作縮圖載入邏輯
+        await Task.Yield();
+    }
+
+    /// <summary>
+    /// 更新底部的膠捲（Filmstrip）選取狀態。
+    /// </summary>
+    private void UpdateFilmstripSelection()
+    {
+        // 實作膠捲選取邏輯
+    }
 }
