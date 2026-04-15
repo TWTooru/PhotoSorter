@@ -1,0 +1,41 @@
+[33mcommit c0c3852e9f65c0eb526c123795c7cc74e90cd3b7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: TWTooru <qwe123rrcc@gmail.com>
+Date:   Thu Apr 16 00:47:44 2026 +0800
+
+    0416新增清除暫存、移除進度條與轉移功能
+
+[33mcommit da67c24792c6a0d382bc808d9cf41abffad934ec[m
+Author: TWTooru <qwe123rrcc@gmail.com>
+Date:   Wed Apr 8 22:02:07 2026 +0800
+
+    新增 README.md 和 LICENSE.txt。
+
+[33mcommit c51ac944440949f87234ef57e400b3a1dc223f79[m
+Author: TWTooru <qwe123rrcc@gmail.com>
+Date:   Wed Apr 8 00:56:42 2026 +0800
+
+    改善照片放大問題
+
+[33mcommit 4fa586e9b1d584672a569ba83853d88793e0e39e[m
+Author: TWTooru <qwe123rrcc@gmail.com>
+Date:   Wed Apr 8 00:40:44 2026 +0800
+
+    0408早上0038，一鍵整理照片功能與放大照片優化。
+
+[33mcommit 56f6445ab6dfedeeb014f2eaa96d648d4835c074[m
+Author: TWTooru <qwe123rrcc@gmail.com>
+Date:   Tue Apr 7 19:49:07 2026 +0800
+
+    0407下午0743 更新：檔名顯示、Deleted實作
+
+[33mcommit f9ecf1c4d4ba525b32564be2bb5d63adf6fad369[m
+Author: TWTooru <qwe123rrcc@gmail.com>
+Date:   Tue Apr 7 19:14:52 2026 +0800
+
+    0407下午0713 照片轉移、旋轉
+
+[33mcommit a760b8a0b2cd70071dc6593fa8725ec88eee4737[m
+Author: TWTooru <qwe123rrcc@gmail.com>
+Date:   Wed Apr 1 01:05:15 2026 +0800
+
+    0401凌晨0100 UI與功能初步設計
