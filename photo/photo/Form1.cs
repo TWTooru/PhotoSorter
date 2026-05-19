@@ -61,51 +61,16 @@ public partial class Form1 : Form
         SetupZoomAndPan();
         SetupOrganize();
         SetupPurge();
+        SetupRemoveRaw();
         SetupActionButtons();
         
-        this.Resize += (s, e) => LayoutControls();
         this.FormClosed += (s, e) => _transformMatrix?.Dispose();
     }
 
     protected override void OnLoad(EventArgs e)
     {
         base.OnLoad(e);
-        LayoutControls();
-    }
-
-    private void LayoutControls()
-    {
-        int padding = 16;
-        int footerHeight = (int)(this.ClientSize.Height * 0.2); 
-        int picHeight = this.ClientSize.Height - footerHeight - (padding * 2);
-
-        _picDisplay.Location = new Point(padding, padding);
-        _picDisplay.Size = new Size(this.ClientSize.Width - padding * 2, picHeight);
-
-        _splitLine.Location = new Point(0, picHeight + padding + 8);
-        _splitLine.Size = new Size(this.ClientSize.Width, 1);
-
-        int footerCenterY = _splitLine.Bottom + (footerHeight / 2);
-        
-        _btnPrev.Location = new Point(0, (_picDisplay.Height - _btnPrev.Height) / 2);
-        _btnNext.Location = new Point(_picDisplay.Width - _btnNext.Width, (_picDisplay.Height - _btnNext.Height) / 2);
-        
-        _btnRotateLeft.Location = new Point(_picDisplay.Width - 140, _picDisplay.Height - 80);
-        _btnRotateRight.Location = new Point(_picDisplay.Width - 70, _picDisplay.Height - 80);
-
-        // 中心圓形按鈕佈局 (Footer 區域中心)
-        int formCenterX = this.ClientSize.Width / 2;
-        _btnMaybe.Location = new Point(formCenterX - _btnMaybe.Width - 15, footerCenterY - (_btnMaybe.Height / 2));
-        _btnTrash.Location = new Point(formCenterX + 15, footerCenterY - (_btnTrash.Height / 2));
-
-        // 右下角功能按鈕
-        _btnOrganize.Location = new Point(this.ClientSize.Width - _btnOrganize.Width - padding, this.ClientSize.Height - _btnOrganize.Height - padding);
-        _btnPurge.Location = new Point(_btnOrganize.Left - _btnPurge.Width - 10, this.ClientSize.Height - _btnPurge.Height - padding);
-        
-        _btnThemeToggle.Location = new Point(padding, this.ClientSize.Height - _btnThemeToggle.Height - padding);
-
         ResetZoom();
-        _picDisplay.Invalidate();
     }
 
     private void SetupSystem()
@@ -236,6 +201,7 @@ public partial class Form1 : Form
             _btnThemeToggle.BackColor = Color.FromArgb(217, 60, 60, 60);
             _btnOrganize.BackColor = Color.FromArgb(45, 45, 45);
             _btnPurge.BackColor = Color.FromArgb(217, 80, 40, 40);
+            _btnRemoveRaw.BackColor = Color.FromArgb(217, 60, 60, 60);
             _splitLine.BackColor = Color.FromArgb(60, 60, 60);
         }
         else
@@ -246,6 +212,7 @@ public partial class Form1 : Form
             _btnThemeToggle.BackColor = Color.FromArgb(217, 255, 255, 255);
             _btnOrganize.BackColor = Color.FromArgb(217, 34, 139, 34);
             _btnPurge.BackColor = Color.FromArgb(217, 220, 50, 50);
+            _btnRemoveRaw.BackColor = Color.FromArgb(217, 80, 80, 80);
             _splitLine.BackColor = Color.FromArgb(200, 200, 200);
         }
         Color nav = Color.FromArgb(102, 0, 0, 0);
@@ -310,12 +277,58 @@ public partial class Form1 : Form
             btn.Region = new Region(path);
         }
 
-        var controls = new[] { (_btnOrganize, false), (_btnPurge, false), (_btnMaybe, true), (_btnTrash, true) };
+        var controls = new[] { (_btnOrganize, false), (_btnPurge, false), (_btnRemoveRaw, false), (_btnMaybe, true), (_btnTrash, true) };
         foreach (var (ctl, isCirc) in controls) {
             ctl.HandleCreated += (s, e) => SetRegion(ctl, isCirc);
             ctl.Resize += (s, e) => SetRegion(ctl, isCirc);
             if (ctl.IsHandleCreated) SetRegion(ctl, isCirc);
         }
+    }
+
+    private void SetupRemoveRaw()
+    {
+        _btnRemoveRaw.Click += async (s, e) => 
+        {
+            if (string.IsNullOrEmpty(_rootPath)) { MessageBox.Show("請先選擇資料夾 (點擊整理照片)。", "提示"); return; }
+            string rawDirPath = Path.Combine(_rootPath, "raw");
+            if (!Directory.Exists(rawDirPath)) { MessageBox.Show("找不到 raw 資料夾。", "提示"); return; }
+
+            var result = MessageBox.Show("確定要移除所有在當前資料夾找不到對應編號的 RAW 檔案嗎？\n這將把檔案移至垃圾桶。", "確認移除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result == DialogResult.Yes) await ExecuteRemoveRawAsync(rawDirPath);
+        };
+    }
+
+    private async Task ExecuteRemoveRawAsync(string rawDirPath)
+    {
+        try
+        {
+            _btnRemoveRaw.Enabled = false;
+            int removedCount = 0;
+            await Task.Run(() => 
+            {
+                // 取得當前資料夾所有 JPG 的編號 (不含副檔名)
+                var currentNumbers = new HashSet<string>(
+                    _jpgFiles.Select(f => Path.GetFileNameWithoutExtension(f)), 
+                    StringComparer.OrdinalIgnoreCase
+                );
+
+                // 檢查 raw 資料夾中的每個檔案
+                foreach (var rawFile in Directory.EnumerateFiles(rawDirPath, "*.*"))
+                {
+                    string rawName = Path.GetFileNameWithoutExtension(rawFile);
+                    if (!currentNumbers.Contains(rawName))
+                    {
+                        // 若不包含該編號，移至垃圾桶
+                        FileSystem.DeleteFile(rawFile, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                        removedCount++;
+                    }
+                }
+            });
+            ShowNotification("RAW 檔案已清理", Color.FromArgb(180, 50, 50, 220));
+            MessageBox.Show($"清理完成，共移除 {removedCount} 個孤立 RAW 檔案。", "成功");
+        }
+        catch (Exception ex) { MessageBox.Show($"移除失敗: {ex.Message}"); }
+        finally { _btnRemoveRaw.Enabled = true; }
     }
 
     private void ShowNotification(string message, Color backColor)

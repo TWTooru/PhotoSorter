@@ -121,180 +121,177 @@
   <data name="_picDisplay.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Bottom, Left, Right</value>
   </data>
+  <data name="_btnPrev.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Left</value>
+  </data>
   <data name="_btnPrev.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="_btnPrev.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 206</value>
+    <value>0, 264</value>
   </data>
   <data name="_btnPrev.Size" type="System.Drawing.Size, System.Drawing">
     <value>64, 128</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="_btnPrev.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
+    <value>0</value>
   </data>
   <data name="_btnPrev.Text" xml:space="preserve">
     <value>&lt;</value>
+  </data>
+  <data name="_btnNext.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Right</value>
   </data>
   <data name="_btnNext.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
   <data name="_btnNext.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1488, 206</value>
+    <value>1488, 264</value>
   </data>
   <data name="_btnNext.Size" type="System.Drawing.Size, System.Drawing">
     <value>64, 128</value>
   </data>
   <data name="_btnNext.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
+    <value>1</value>
   </data>
   <data name="_btnNext.Text" xml:space="preserve">
     <value>&gt;</value>
   </data>
-  <data name="_picDisplay.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 16</value>
+  <data name="_btnRotateLeft.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="_btnRotateLeft.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="_btnRotateLeft.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1412, 577</value>
+  </data>
+  <data name="_btnRotateLeft.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 64</value>
+  </data>
+  <data name="_btnRotateLeft.Text" xml:space="preserve">
+    <value>⟲</value>
+  </data>
+  <data name="_btnRotateRight.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="_btnRotateRight.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
+  </data>
+  <data name="_btnRotateRight.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1482, 577</value>
+  </data>
+  <data name="_btnRotateRight.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 64</value>
+  </data>
+  <data name="_btnRotateRight.Text" xml:space="preserve">
+    <value>⟳</value>
   </data>
   <data name="_picDisplay.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1552, 540</value>
+    <value>1552, 657</value>
   </data>
-  <data name="_picDisplay.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode, System.Windows.Forms">
-    <value>Zoom</value>
-  </data>
-  <data name="_picDisplay.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="_pbStatus.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left, Right</value>
-  </data>
-  <data name="_pbStatus.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 572</value>
-  </data>
-  <data name="_pbStatus.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1552, 24</value>
-  </data>
-  <data name="_pbStatus.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
-  <data name="_btnJpgPath.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left, Right</value>
-  </data>
-  <data name="_btnJpgPath.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
-  </data>
-  <data name="_btnJpgPath.Location" type="System.Drawing.Point, System.Drawing">
-    <value>122, 612</value>
-  </data>
-  <data name="_btnJpgPath.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1230, 40</value>
-  </data>
-  <data name="_btnJpgPath.TabIndex" type="System.Int32, mscorlib">
-    <value>5</value>
-  </data>
-  <data name="_btnJpgPath.Text" xml:space="preserve">
-    <value> 📂 請點擊選擇 JPG 資料夾...</value>
-  </data>
-  <data name="_btnJpgPath.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleLeft</value>
-  </data>
-  <data name="_btnRawPath.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left, Right</value>
-  </data>
-  <data name="_btnRawPath.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
-    <value>Flat</value>
-  </data>
-  <data name="_btnRawPath.Location" type="System.Drawing.Point, System.Drawing">
-    <value>122, 660</value>
-  </data>
-  <data name="_btnRawPath.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1230, 40</value>
-  </data>
-  <data name="_btnRawPath.TabIndex" type="System.Int32, mscorlib">
-    <value>7</value>
-  </data>
-  <data name="_btnRawPath.Text" xml:space="preserve">
-    <value> 📁 請點擊選擇 RAW 資料夾...</value>
-  </data>
-  <data name="_btnRawPath.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleLeft</value>
-  </data>
-  <data name="_btnTransfer.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="_btnOrganize.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom, Right</value>
   </data>
-  <data name="_btnTransfer.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+  <data name="_btnOrganize.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
-  <data name="_btnTransfer.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 14pt, style=Bold</value>
+  <data name="_btnOrganize.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 12pt, style=Bold</value>
   </data>
-  <data name="_btnTransfer.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1368, 612</value>
+  <data name="_btnOrganize.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1408, 785</value>
   </data>
-  <data name="_btnTransfer.Size" type="System.Drawing.Size, System.Drawing">
-    <value>200, 88</value>
+  <data name="_btnOrganize.Size" type="System.Drawing.Size, System.Drawing">
+    <value>160, 60</value>
   </data>
-  <data name="_btnTransfer.TabIndex" type="System.Int32, mscorlib">
-    <value>8</value>
+  <data name="_btnOrganize.Text" xml:space="preserve">
+    <value>📦 整理照片</value>
   </data>
-  <data name="_btnTransfer.Text" xml:space="preserve">
-    <value>➔ 執行轉移</value>
+  <data name="_btnPurge.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
   </data>
-  <data name="_lblJpg.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left</value>
+  <data name="_btnPurge.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
   </data>
-  <data name="_lblJpg.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 612</value>
+  <data name="_btnPurge.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 12pt, style=Bold</value>
   </data>
-  <data name="_lblJpg.Size" type="System.Drawing.Size, System.Drawing">
-    <value>100, 40</value>
+  <data name="_btnPurge.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1238, 785</value>
   </data>
-  <data name="_lblJpg.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
+  <data name="_btnPurge.Size" type="System.Drawing.Size, System.Drawing">
+    <value>160, 60</value>
   </data>
-  <data name="_lblJpg.Text" xml:space="preserve">
-    <value>JPG 檔案位置</value>
+  <data name="_btnPurge.Text" xml:space="preserve">
+    <value>🗑️ 清空暫存</value>
   </data>
-  <data name="_lblJpg.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleLeft</value>
+  <data name="_btnRemoveRaw.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Right</value>
   </data>
-  <data name="_lblRaw.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left</value>
+  <data name="_btnRemoveRaw.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
+    <value>Flat</value>
   </data>
-  <data name="_lblRaw.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 660</value>
+  <data name="_btnRemoveRaw.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 12pt, style=Bold</value>
   </data>
-  <data name="_lblRaw.Size" type="System.Drawing.Size, System.Drawing">
-    <value>100, 40</value>
+  <data name="_btnRemoveRaw.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1368, 715</value>
   </data>
-  <data name="_lblRaw.TabIndex" type="System.Int32, mscorlib">
-    <value>6</value>
+  <data name="_btnRemoveRaw.Size" type="System.Drawing.Size, System.Drawing">
+    <value>200, 60</value>
   </data>
-  <data name="_lblRaw.Text" xml:space="preserve">
-    <value>RAW 檔案位置</value>
+  <data name="_btnRemoveRaw.Text" xml:space="preserve">
+    <value>移除對應編號RAW</value>
   </data>
-  <data name="_lblRaw.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleLeft</value>
+  <data name="_btnMaybe.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="_btnMaybe.Location" type="System.Drawing.Point, System.Drawing">
+    <value>697, 728</value>
+  </data>
+  <data name="_btnMaybe.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 80</value>
+  </data>
+  <data name="_btnTrash.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="_btnTrash.Location" type="System.Drawing.Point, System.Drawing">
+    <value>807, 728</value>
+  </data>
+  <data name="_btnTrash.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 80</value>
   </data>
   <data name="_btnThemeToggle.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Right</value>
+    <value>Bottom, Left</value>
   </data>
   <data name="_btnThemeToggle.FlatStyle" type="System.Windows.Forms.FlatStyle, System.Windows.Forms">
     <value>Flat</value>
   </data>
-  <data name="_btnThemeToggle.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 12pt</value>
-  </data>
   <data name="_btnThemeToggle.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1520, 710</value>
+    <value>16, 805</value>
   </data>
   <data name="_btnThemeToggle.Size" type="System.Drawing.Size, System.Drawing">
     <value>48, 40</value>
   </data>
   <data name="_btnThemeToggle.TabIndex" type="System.Int32, mscorlib">
-    <value>9</value>
+    <value>5</value>
   </data>
   <data name="_btnThemeToggle.Text" xml:space="preserve">
     <value>🌙</value>
+  </data>
+  <data name="_splitLine.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Bottom, Left, Right</value>
+  </data>
+  <data name="_splitLine.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 681</value>
+  </data>
+  <data name="_splitLine.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1584, 1</value>
+  </data>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>1584, 861</value>
   </data>
 </root>
