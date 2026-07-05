@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.VisualBasic.FileIO;
 using photo.Core.Interfaces;
 
 namespace photo.Infrastructure
@@ -9,6 +10,11 @@ namespace photo.Infrastructure
         public IEnumerable<string> GetFiles(string directoryPath, string searchPattern)
         {
             return Directory.GetFiles(directoryPath, searchPattern);
+        }
+
+        public IEnumerable<string> EnumerateFiles(string path, string searchPattern)
+        {
+            return Directory.EnumerateFiles(path, searchPattern);
         }
 
         public void MoveFile(string source, string destination)
@@ -27,6 +33,21 @@ namespace photo.Infrastructure
         public bool FileExists(string path)
         {
             return File.Exists(path);
+        }
+
+        public void DeleteFile(string path)
+        {
+            File.Delete(path);
+        }
+
+        public bool DirectoryExists(string path)
+        {
+            return Directory.Exists(path);
+        }
+
+        public void SendToRecycleBin(string path)
+        {
+            FileSystem.DeleteFile(path, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
         }
     }
 }

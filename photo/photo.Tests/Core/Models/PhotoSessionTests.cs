@@ -9,11 +9,18 @@ namespace photo.Tests.Core.Models
 {
     public class PhotoSessionTests
     {
+        private void SetupMocks(Mock<IFileSystemService> mockFs, string path, string[] jpgs)
+        {
+            mockFs.Setup(fs => fs.EnumerateFiles(path, "*.*")).Returns(Array.Empty<string>());
+            mockFs.Setup(fs => fs.EnumerateFiles(path, "*.jpg")).Returns(jpgs);
+            mockFs.Setup(fs => fs.EnumerateFiles(path, "*.jpeg")).Returns(Array.Empty<string>());
+        }
+
         [Fact]
         public void InitializeWorkspace_LoadsJpgsAndSetsCurrentIndex()
         {
             var mockFs = new Mock<IFileSystemService>();
-            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg", "C:\\test\\2.jpg" });
+            SetupMocks(mockFs, "C:\\test", new[] { "C:\\test\\1.jpg", "C:\\test\\2.jpg" });
             
             var session = new PhotoSession(mockFs.Object);
             session.InitializeWorkspace("C:\\test");
@@ -29,7 +36,7 @@ namespace photo.Tests.Core.Models
             var mockFs = new Mock<IFileSystemService>();
             var session = new PhotoSession(mockFs.Object);
 
-            Assert.Throws<ArgumentNullException>(() => session.InitializeWorkspace(null));
+            Assert.Throws<ArgumentNullException>(() => session.InitializeWorkspace(null!));
         }
 
         [Theory]
@@ -47,7 +54,7 @@ namespace photo.Tests.Core.Models
         public void InitializeWorkspace_EmptyDirectory_SetsCurrentIndexToMinusOne()
         {
             var mockFs = new Mock<IFileSystemService>();
-            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new string[0]);
+            SetupMocks(mockFs, "C:\\test", Array.Empty<string>());
             
             var session = new PhotoSession(mockFs.Object);
             session.InitializeWorkspace("C:\\test");
@@ -60,7 +67,7 @@ namespace photo.Tests.Core.Models
         public void Next_IncrementsIndex_WhenNotAtEnd()
         {
             var mockFs = new Mock<IFileSystemService>();
-            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new[] { "1.jpg", "2.jpg" });
+            SetupMocks(mockFs, "C:\\test", new[] { "1.jpg", "2.jpg" });
             var session = new PhotoSession(mockFs.Object);
             session.InitializeWorkspace("C:\\test");
             
@@ -73,7 +80,7 @@ namespace photo.Tests.Core.Models
         public void Next_DoesNotIncrementIndex_WhenAtEnd()
         {
             var mockFs = new Mock<IFileSystemService>();
-            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new[] { "1.jpg" });
+            SetupMocks(mockFs, "C:\\test", new[] { "1.jpg" });
             var session = new PhotoSession(mockFs.Object);
             session.InitializeWorkspace("C:\\test");
             
@@ -86,7 +93,7 @@ namespace photo.Tests.Core.Models
         public void Previous_DecrementsIndex_WhenNotAtBeginning()
         {
             var mockFs = new Mock<IFileSystemService>();
-            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new[] { "1.jpg", "2.jpg" });
+            SetupMocks(mockFs, "C:\\test", new[] { "1.jpg", "2.jpg" });
             var session = new PhotoSession(mockFs.Object);
             session.InitializeWorkspace("C:\\test");
             
@@ -100,7 +107,7 @@ namespace photo.Tests.Core.Models
         public void Previous_DoesNotDecrementIndex_WhenAtBeginning()
         {
             var mockFs = new Mock<IFileSystemService>();
-            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new[] { "1.jpg", "2.jpg" });
+            SetupMocks(mockFs, "C:\\test", new[] { "1.jpg", "2.jpg" });
             var session = new PhotoSession(mockFs.Object);
             session.InitializeWorkspace("C:\\test");
             
