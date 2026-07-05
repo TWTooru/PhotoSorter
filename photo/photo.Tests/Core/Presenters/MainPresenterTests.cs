@@ -46,5 +46,48 @@ namespace photo.Tests.Core.Presenters
             
             mockView.Verify(v => v.DisplayImage(It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
         }
+
+        [Fact]
+        public void Dispose_UnsubscribesEventHandler()
+        {
+            var mockView = new Mock<IMainView>();
+            var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg", "C:\\test\\2.jpg" });
+            
+            var session = new PhotoSession(mockFs.Object);
+            session.InitializeWorkspace("C:\\test");
+            
+            var presenter = new MainPresenter(mockView.Object, session);
+            
+            // Dispose should unsubscribe
+            presenter.Dispose();
+            
+            // Trigger Next
+            mockView.Raise(v => v.NextRequested += null, EventArgs.Empty);
+            
+            // Since disposed, shouldn't display next image
+            mockView.Verify(v => v.DisplayImage(It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
+            Assert.Equal(0, session.CurrentIndex);
+        }
+
+        [Fact]
+        public void NextRequested_AtEndOfWorkspace_DoesNotThrowAndDoesNotAdvance()
+        {
+            var mockView = new Mock<IMainView>();
+            var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg" });
+            
+            var session = new PhotoSession(mockFs.Object);
+            session.InitializeWorkspace("C:\\test");
+            
+            var presenter = new MainPresenter(mockView.Object, session);
+            
+            // Trigger Next when already at end
+            mockView.Raise(v => v.NextRequested += null, EventArgs.Empty);
+            
+            // Should not advance index
+            Assert.Equal(0, session.CurrentIndex);
+            mockView.Verify(v => v.DisplayImage("C:\\test\\1.jpg", false), Times.Once);
+        }
     }
 }
