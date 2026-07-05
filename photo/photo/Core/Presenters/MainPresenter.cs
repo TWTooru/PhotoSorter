@@ -4,7 +4,7 @@ using photo.Core.Models;
 
 namespace photo.Core.Presenters
 {
-    public class MainPresenter
+    public class MainPresenter : IDisposable
     {
         private readonly IMainView _view;
         private readonly PhotoSession _session;
@@ -27,6 +27,11 @@ namespace photo.Core.Presenters
             {
                 _view.DisplayImage(_session.JpgFiles[_session.CurrentIndex], false);
             }
+        }
+
+        public void Dispose()
+        {
+            _view.NextRequested -= OnNextRequested;
         }
     }
 }
