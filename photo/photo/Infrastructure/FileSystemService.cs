@@ -49,5 +49,10 @@ namespace photo.Infrastructure
         {
             FileSystem.DeleteFile(path, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
         }
+
+        public Stream OpenRead(string path)
+        {
+            return new FileStream(path, FileMode.Open, FileAccess.Read);
+        }
     }
 }

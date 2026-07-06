@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 
 namespace photo.Core.Interfaces
 {
@@ -12,5 +13,6 @@ namespace photo.Core.Interfaces
         void DeleteFile(string path);
         bool DirectoryExists(string path);
         void SendToRecycleBin(string path);
+        Stream OpenRead(string path);
     }
 }

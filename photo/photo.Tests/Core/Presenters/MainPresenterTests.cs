@@ -15,6 +15,7 @@ namespace photo.Tests.Core.Presenters
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.OpenRead(It.IsAny<string>())).Returns(() => new System.IO.MemoryStream());
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg", "C:\\test\\2.jpg" });
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpeg")).Returns(Array.Empty<string>());
             
@@ -34,6 +35,7 @@ namespace photo.Tests.Core.Presenters
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.OpenRead(It.IsAny<string>())).Returns(() => new System.IO.MemoryStream());
             mockFs.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
             mockFs.Setup(fs => fs.EnumerateFiles(It.IsAny<string>(), "*.*")).Returns(new[] { "temp1.jpg" });
             
@@ -53,6 +55,7 @@ namespace photo.Tests.Core.Presenters
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.OpenRead(It.IsAny<string>())).Returns(() => new System.IO.MemoryStream());
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg" });
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpeg")).Returns(Array.Empty<string>());
             mockFs.Setup(fs => fs.DirectoryExists("C:\\test\\raw")).Returns(true);
@@ -75,6 +78,7 @@ namespace photo.Tests.Core.Presenters
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.OpenRead(It.IsAny<string>())).Returns(() => new System.IO.MemoryStream());
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg" });
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpeg")).Returns(Array.Empty<string>());
             
@@ -94,6 +98,7 @@ namespace photo.Tests.Core.Presenters
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.OpenRead(It.IsAny<string>())).Returns(() => new System.IO.MemoryStream());
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg" });
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpeg")).Returns(Array.Empty<string>());
             mockFs.Setup(fs => fs.DirectoryExists("C:\\test\\raw")).Returns(true);
@@ -117,6 +122,7 @@ namespace photo.Tests.Core.Presenters
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.OpenRead(It.IsAny<string>())).Returns(() => new System.IO.MemoryStream());
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg" });
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpeg")).Returns(Array.Empty<string>());
             mockFs.Setup(fs => fs.DirectoryExists("C:\\test\\raw")).Returns(true);
@@ -139,6 +145,7 @@ namespace photo.Tests.Core.Presenters
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.OpenRead(It.IsAny<string>())).Returns(() => new System.IO.MemoryStream());
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg" });
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpeg")).Returns(Array.Empty<string>());
             mockFs.Setup(fs => fs.FileExists(It.IsAny<string>())).Returns(true);
@@ -164,6 +171,7 @@ namespace photo.Tests.Core.Presenters
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.OpenRead(It.IsAny<string>())).Returns(() => new System.IO.MemoryStream());
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\missing.jpg" });
             mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpeg")).Returns(Array.Empty<string>());
             mockFs.Setup(fs => fs.FileExists("C:\\test\\missing.jpg")).Returns(false);

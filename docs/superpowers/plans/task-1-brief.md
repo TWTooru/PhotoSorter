@@ -1,66 +1,27 @@
-### Task 1: Setup xUnit Project & Interfaces
+### Task 1: Install MetadataExtractor Package
 
 **Files:**
-- Create: `photo/photo.Tests/photo.Tests.csproj`
-- Create: `photo/photo/Core/Interfaces/IMainView.cs`
-- Create: `photo/photo/Core/Interfaces/IFileSystemService.cs`
+- Modify: `photo/photo/photo.csproj`
 
 **Interfaces:**
 - Consumes: `photo.sln`
-- Produces: `IMainView`, `IFileSystemService` (Interfaces only)
+- Produces: `photo.csproj` with NuGet dependency
 
-- [ ] **Step 1: Scaffold xUnit test project**
+- [ ] **Step 1: Install MetadataExtractor**
 
-Run in `photo` directory:
+Run in `photo/photo` directory:
 ```bash
-dotnet new xunit -n photo.Tests
-dotnet sln photo.sln add photo.Tests/photo.Tests.csproj
-dotnet add photo.Tests/photo.Tests.csproj reference photo/photo.csproj
-dotnet add photo.Tests package Moq
+dotnet add package MetadataExtractor
 ```
 
-- [ ] **Step 2: Create `IMainView.cs`**
+- [ ] **Step 2: Verify Installation**
 
-```csharp
-using System;
+Run: `dotnet restore photo/photo.sln`
+Expected: Succeeds with no errors.
 
-namespace photo.Core.Interfaces
-{
-    public interface IMainView
-    {
-        void DisplayImage(string imagePath, bool isHighQuality);
-        void UpdateStatus(int currentIndex, int totalPhotos, string currentFileName);
-        void ShowMessage(string message);
-        
-        event EventHandler NextRequested;
-        event EventHandler PreviousRequested;
-        event EventHandler DeleteRequested;
-        event EventHandler UndoRequested;
-        event EventHandler<string> FolderSelected;
-    }
-}
-```
-
-- [ ] **Step 3: Create `IFileSystemService.cs`**
-
-```csharp
-using System.Collections.Generic;
-
-namespace photo.Core.Interfaces
-{
-    public interface IFileSystemService
-    {
-        IEnumerable<string> GetFiles(string directoryPath, string searchPattern);
-        void MoveFile(string source, string destination);
-        void CreateDirectory(string path);
-        bool FileExists(string path);
-    }
-}
-```
-
-- [ ] **Step 4: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
-git add photo/photo.Tests photo/photo.sln photo/photo/Core
-git commit -m "test: scaffold xUnit project and core interfaces"
+git add photo/photo/photo.csproj
+git commit -m "build: add MetadataExtractor package"
 ```

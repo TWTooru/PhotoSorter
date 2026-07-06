@@ -1,89 +1,100 @@
-### Task 2: Implement PhotoSession (Model) with TDD
+### Task 2: Refactor MainPresenter
 
 **Files:**
-- Create: `photo/photo.Tests/Core/Models/PhotoSessionTests.cs`
-- Create: `photo/photo/Core/Models/PhotoSession.cs`
+- Modify: `photo/photo/Core/Presenters/MainPresenter.cs`
 
 **Interfaces:**
-- Consumes: `IFileSystemService`
-- Produces: `PhotoSession` class
+- Consumes: `MetadataExtractor` APIs
+- Produces: `MainPresenter` with optimized `ExtractAndSendExif` method
 
 - [ ] **Step 1: Write the failing tests**
+*(Note: As we are replacing an internal private method's implementation, the existing tests verify the overall presenter behavior. We will write a small unit test to ensure the mock view still receives an Exif string when Next/Prev is pressed).*
+
+Append this test to `photo/photo.Tests/Core/Presenters/MainPresenterTests.cs`:
 
 ```csharp
-using Xunit;
-using Moq;
-using System.Collections.Generic;
-using photo.Core.Interfaces;
-using photo.Core.Models;
-
-namespace photo.Tests.Core.Models
-{
-    public class PhotoSessionTests
-    {
         [Fact]
-        public void InitializeWorkspace_LoadsJpgsAndSetsCurrentIndex()
+        public void ExtractAndSendExif_SendsFallbackString_WhenFileDoesNotExist()
         {
+            var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
-            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\1.jpg", "C:\\test\\2.jpg" });
+            mockFs.Setup(fs => fs.GetFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\missing.jpg" });
+            mockFs.Setup(fs => fs.FileExists("C:\\test\\missing.jpg")).Returns(false);
             
             var session = new PhotoSession(mockFs.Object);
             session.InitializeWorkspace("C:\\test");
             
-            Assert.Equal(2, session.JpgFiles.Count);
-            Assert.Equal(0, session.CurrentIndex);
-            mockFs.Verify(fs => fs.CreateDirectory("C:\\test\\raw"), Times.Once);
+            var presenter = new MainPresenter(mockView.Object, session);
+            
+            mockView.Raise(v => v.NextRequested += null, EventArgs.Empty);
+            
+            mockView.Verify(v => v.UpdateExifData("無 EXIF 資訊"), Times.Once);
         }
-    }
-}
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
-
+- [ ] **Step 2: Run test to verify the baseline**
 Run: `dotnet test photo/photo.Tests/photo.Tests.csproj`
-Expected: FAIL (Compilation error: PhotoSession does not exist)
+Expected: PASS (This verifies the baseline fallback behavior is tested before we refactor the EXIF logic).
 
-- [ ] **Step 3: Write minimal implementation**
+- [ ] **Step 3: Replace EXIF extraction logic**
 
+In `photo/photo/Core/Presenters/MainPresenter.cs`, replace `ExtractAndSendExif` and remove the helper methods `GetExifString`, `GetExifShort`, `GetExifRational`.
+
+Add to top:
 ```csharp
-using System.Collections.Generic;
+using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 using System.Linq;
-using System.IO;
-using photo.Core.Interfaces;
-
-namespace photo.Core.Models
-{
-    public class PhotoSession
-    {
-        private readonly IFileSystemService _fileSystem;
-        public List<string> JpgFiles { get; private set; }
-        public int CurrentIndex { get; set; }
-        
-        public PhotoSession(IFileSystemService fileSystem)
-        {
-            _fileSystem = fileSystem;
-            JpgFiles = new List<string>();
-        }
-        
-        public void InitializeWorkspace(string folderPath)
-        {
-            _fileSystem.CreateDirectory(Path.Combine(folderPath, "raw"));
-            var files = _fileSystem.GetFiles(folderPath, "*.jpg").ToList();
-            JpgFiles = files;
-            CurrentIndex = 0;
-        }
-    }
-}
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+Replace `ExtractAndSendExif` with:
+```csharp
+        private void ExtractAndSendExif(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            {
+                _view.UpdateExifData("無 EXIF 資訊");
+                return;
+            }
+
+            try
+            {
+                var directories = ImageMetadataReader.ReadMetadata(filePath);
+                var subIfd = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+                var ifd0 = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
+
+                string make = ifd0?.GetDescription(ExifDirectoryBase.TagMake) ?? "";
+                string model = ifd0?.GetDescription(ExifDirectoryBase.TagModel) ?? "";
+                string fullModel = $"{make} {model}".Trim();
+                if (string.IsNullOrEmpty(fullModel)) fullModel = "Unknown";
+
+                string shutter = subIfd?.GetDescription(ExifDirectoryBase.TagExposureTime) ?? "Unknown";
+                string aperture = subIfd?.GetDescription(ExifDirectoryBase.TagFNumber)?.Replace("f/", "") ?? "Unknown";
+                string iso = subIfd?.GetDescription(ExifDirectoryBase.TagIsoEquivalent) ?? "Unknown";
+                string focal = subIfd?.GetDescription(ExifDirectoryBase.TagFocalLength)?.Replace(" mm", "") ?? "Unknown";
+
+                _view.UpdateExifData($"{fullModel} | {shutter}s | f/{aperture} | ISO {iso} | {focal}mm");
+            }
+            catch
+            {
+                _view.UpdateExifData("無 EXIF 資訊");
+            }
+        }
+```
+
+Remove these methods from `MainPresenter.cs`:
+- `GetExifString`
+- `GetExifShort`
+- `GetExifRational`
+
+- [ ] **Step 4: Run tests to verify they still pass**
 
 Run: `dotnet test photo/photo.Tests/photo.Tests.csproj`
-Expected: PASS
+Expected: PASS (All tests should still pass, proving our refactoring didn't break presenter flow).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add photo/photo.Tests photo/photo/Core/Models
-git commit -m "feat: implement PhotoSession initialization with tests"
+git add photo/photo/Core/Presenters/MainPresenter.cs photo/photo.Tests/Core/Presenters/MainPresenterTests.cs
+git commit -m "refactor: optimize EXIF extraction using MetadataExtractor"
 ```

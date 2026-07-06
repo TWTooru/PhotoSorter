@@ -122,7 +122,7 @@ namespace photo.Core.Presenters
 
         private void ExtractAndSendExif(string filePath)
         {
-            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            if (string.IsNullOrEmpty(filePath) || !_session.FileSystem.FileExists(filePath))
             {
                 _view.UpdateExifData("無 EXIF 資訊");
                 return;
@@ -130,7 +130,8 @@ namespace photo.Core.Presenters
 
             try
             {
-                var directories = ImageMetadataReader.ReadMetadata(filePath);
+                using var stream = _session.FileSystem.OpenRead(filePath);
+                var directories = ImageMetadataReader.ReadMetadata(stream);
                 var subIfd = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
                 var ifd0 = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
 

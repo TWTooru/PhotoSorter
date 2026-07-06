@@ -17,6 +17,7 @@ namespace photo.Core.Models
     public class PhotoSession
     {
         private readonly IFileSystemService _fileSystem;
+        public IFileSystemService FileSystem => _fileSystem;
         public List<string> JpgFiles { get; private set; }
         public int CurrentIndex { get; private set; }
         public Stack<UndoItem> UndoStack { get; private set; }
