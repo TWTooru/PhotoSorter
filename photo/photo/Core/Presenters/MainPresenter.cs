@@ -1,6 +1,9 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 using photo.Core.Interfaces;
 using photo.Core.Models;
 
@@ -127,48 +130,26 @@ namespace photo.Core.Presenters
 
             try
             {
-                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-                using var img = Image.FromStream(stream, false, false);
-                string model = GetExifString(img, 0x0110);
-                string shutter = GetExifRational(img, 0x829A, true);
-                string aperture = GetExifRational(img, 0x829D, false);
-                string iso = GetExifShort(img, 0x8827);
-                string focal = GetExifRational(img, 0x920A, false);
+                var directories = ImageMetadataReader.ReadMetadata(filePath);
+                var subIfd = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+                var ifd0 = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
 
-                _view.UpdateExifData($"{model} | {shutter}s | f/{aperture} | ISO {iso} | {focal}mm");
+                string make = ifd0?.GetDescription(ExifDirectoryBase.TagMake) ?? "";
+                string model = ifd0?.GetDescription(ExifDirectoryBase.TagModel) ?? "";
+                string fullModel = $"{make} {model}".Trim();
+                if (string.IsNullOrEmpty(fullModel)) fullModel = "Unknown";
+
+                string shutter = subIfd?.GetDescription(ExifDirectoryBase.TagExposureTime) ?? "Unknown";
+                string aperture = subIfd?.GetDescription(ExifDirectoryBase.TagFNumber)?.Replace("f/", "") ?? "Unknown";
+                string iso = subIfd?.GetDescription(ExifDirectoryBase.TagIsoEquivalent) ?? "Unknown";
+                string focal = subIfd?.GetDescription(ExifDirectoryBase.TagFocalLength)?.Replace(" mm", "") ?? "Unknown";
+
+                _view.UpdateExifData($"{fullModel} | {shutter}s | f/{aperture} | ISO {iso} | {focal}mm");
             }
             catch
             {
                 _view.UpdateExifData("無 EXIF 資訊");
             }
-        }
-
-        private string GetExifString(Image img, int id)
-        {
-            if (Array.IndexOf(img.PropertyIdList, id) < 0) return "Unknown";
-            var prop = img.GetPropertyItem(id);
-            if (prop == null || prop.Value == null) return "Unknown";
-            return System.Text.Encoding.ASCII.GetString(prop.Value).Trim('\0', ' ');
-        }
-
-        private string GetExifShort(Image img, int id)
-        {
-            if (Array.IndexOf(img.PropertyIdList, id) < 0) return "Unknown";
-            var prop = img.GetPropertyItem(id);
-            if (prop == null || prop.Value == null) return "Unknown";
-            return BitConverter.ToUInt16(prop.Value, 0).ToString();
-        }
-
-        private string GetExifRational(Image img, int id, bool isShutter)
-        {
-            if (Array.IndexOf(img.PropertyIdList, id) < 0) return "Unknown";
-            var prop = img.GetPropertyItem(id);
-            if (prop == null || prop.Value == null || prop.Value.Length < 8) return "Unknown";
-            uint num = BitConverter.ToUInt32(prop.Value, 0);
-            uint den = BitConverter.ToUInt32(prop.Value, 4);
-            if (den == 0) return "0";
-            if (isShutter && num < den) return $"1/{den / num}";
-            return (num / (double)den).ToString("F1").Replace(".0", "");
         }
 
         public void Dispose()

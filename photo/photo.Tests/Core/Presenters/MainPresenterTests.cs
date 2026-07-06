@@ -158,5 +158,24 @@ namespace photo.Tests.Core.Presenters
             Assert.Single(session.JpgFiles);
             Assert.Empty(session.UndoStack);
         }
+
+        [Fact]
+        public void ExtractAndSendExif_SendsFallbackString_WhenFileDoesNotExist()
+        {
+            var mockView = new Mock<IMainView>();
+            var mockFs = new Mock<IFileSystemService>();
+            mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpg")).Returns(new[] { "C:\\test\\missing.jpg" });
+            mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.jpeg")).Returns(Array.Empty<string>());
+            mockFs.Setup(fs => fs.FileExists("C:\\test\\missing.jpg")).Returns(false);
+            
+            var session = new PhotoSession(mockFs.Object);
+            session.InitializeWorkspace("C:\\test");
+            
+            var presenter = new MainPresenter(mockView.Object, session);
+            
+            mockView.Raise(v => v.NextRequested += null, EventArgs.Empty);
+            
+            mockView.Verify(v => v.UpdateExifData("無 EXIF 資訊"), Times.Once);
+        }
     }
 }
