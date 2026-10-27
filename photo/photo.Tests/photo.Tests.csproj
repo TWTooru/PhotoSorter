@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="TestData\**" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\photo\photo.csproj" />
   </ItemGroup>
 

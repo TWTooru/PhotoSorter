@@ -31,6 +31,22 @@ namespace photo.Tests.Core.Models
         }
 
         [Fact]
+        public void InitializeWorkspace_IncludesHeifFilesSortedWithJpgs()
+        {
+            var mockFs = new Mock<IFileSystemService>();
+            SetupMocks(mockFs, "C:\\test", new[] { "C:\\test\\1.jpg", "C:\\test\\3.jpg" });
+            mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.heic")).Returns(new[] { "C:\\test\\2.HEIC" });
+            mockFs.Setup(fs => fs.EnumerateFiles("C:\\test", "*.heif")).Returns(new[] { "C:\\test\\4.heif" });
+
+            var session = new PhotoSession(mockFs.Object);
+            session.InitializeWorkspace("C:\\test");
+
+            Assert.Equal(
+                new[] { "C:\\test\\1.jpg", "C:\\test\\2.HEIC", "C:\\test\\3.jpg", "C:\\test\\4.heif" },
+                session.JpgFiles);
+        }
+
+        [Fact]
         public void InitializeWorkspace_NullFolderPath_ThrowsArgumentNullException()
         {
             var mockFs = new Mock<IFileSystemService>();

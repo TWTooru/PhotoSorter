@@ -14,7 +14,7 @@ namespace photo.Core.Models
         public int Index { get; set; }
     }
 
-    public class PhotoSession
+    public class PhotoSession : IPhotoSession
     {
         private readonly IFileSystemService _fileSystem;
         public IFileSystemService FileSystem => _fileSystem;
@@ -62,7 +62,10 @@ namespace photo.Core.Models
             UndoStack.Clear();
             RotationStates.Clear();
             JpgFiles = _fileSystem.EnumerateFiles(folderPath, "*.jpg")
-                .Union(_fileSystem.EnumerateFiles(folderPath, "*.jpeg"))
+                .Concat(_fileSystem.EnumerateFiles(folderPath, "*.jpeg"))
+                .Concat(_fileSystem.EnumerateFiles(folderPath, "*.heic"))
+                .Concat(_fileSystem.EnumerateFiles(folderPath, "*.heif"))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(f => f).ToList();
             CurrentIndex = JpgFiles.Count > 0 ? 0 : -1;
         }
@@ -134,14 +137,15 @@ namespace photo.Core.Models
             if (CurrentIndex >= 0 && CurrentIndex < JpgFiles.Count)
             {
                 string p = JpgFiles[CurrentIndex];
-                int currentRotation = RotationStates.ContainsKey(p) ? RotationStates[p] : 0;
+                RotationStates.TryGetValue(p, out int currentRotation);
                 RotationStates[p] = (currentRotation + (cw ? 1 : 3)) % 4;
             }
         }
 
         public int GetRotation(string filePath)
         {
-            return RotationStates.ContainsKey(filePath) ? RotationStates[filePath] : 0;
+            RotationStates.TryGetValue(filePath, out int rotation);
+            return rotation;
         }
 
         public bool Undo()

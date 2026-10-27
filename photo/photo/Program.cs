@@ -18,12 +18,12 @@ namespace photo
             
             var fileSystem = new FileSystemService();
             var session = new PhotoSession(fileSystem);
-            var form = new Form1();
-            var presenter = new MainPresenter(form, session);
+            var imageLoader = new ImageLoader(fileSystem);
+
+            using var form = new Form1();
+            using var presenter = new MainPresenter(form, session, imageLoader);
             
             Application.Run(form);
-            
-            presenter.Dispose();
         }
     }
 }

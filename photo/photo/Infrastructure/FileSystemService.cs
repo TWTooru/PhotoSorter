@@ -7,11 +7,6 @@ namespace photo.Infrastructure
 {
     public class FileSystemService : IFileSystemService
     {
-        public IEnumerable<string> GetFiles(string directoryPath, string searchPattern)
-        {
-            return Directory.GetFiles(directoryPath, searchPattern);
-        }
-
         public IEnumerable<string> EnumerateFiles(string path, string searchPattern)
         {
             return Directory.EnumerateFiles(path, searchPattern);

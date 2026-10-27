@@ -13,6 +13,7 @@ Photo Sorter 是一款使用 C# Windows Forms 開發的照片篩選工具。
     *   動態渲染畫質：拖曳時自動降低畫質確保流暢度，停止操作後瞬間恢復高畫質。
 *   **復原機制**：支援無限制的堆疊復原（Undo），不小心刪錯照片只要按下 `Ctrl + Z` 即可立刻還原檔案與畫面狀態。
 *   **EXIF自動轉向**：自動讀取照片 EXIF 方向屬性，正確顯示直式與橫式照片。
+*   **HEIF / HEIC 支援**：可直接瀏覽 `.heic` / `.heif` 照片（如 iPhone 拍攝），透過 Magick.NET 內建解碼，無須另外安裝 Windows HEIF 擴充功能；RAW 連動、刪除、暫存區等行為與 JPG 相同。
 *   **深色/淺色主題**：內建 Dark Mode 與 Light Mode，減少長時間挑選照片的視覺疲勞（設定自動儲存於 `theme.cfg`）。
 ---
 

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using photo.Core.Interfaces;
+using photo.UI;
 
 namespace photo;
 
@@ -18,7 +19,9 @@ public partial class Form1 : Form, IMainView
     public event EventHandler? MoveToStagingRequested;
 
     private bool _isDarkMode = false;
-    private const string ThemeSettingsFile = "theme.cfg";
+    private static readonly string ThemeSettingsDir = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PhotoSorter");
+    private static readonly string ThemeSettingsFile = Path.Combine(ThemeSettingsDir, "theme.cfg");
     
     // Zoom/Pan
     private Matrix _transformMatrix = new Matrix();
@@ -31,7 +34,7 @@ public partial class Form1 : Form, IMainView
     private System.Windows.Forms.Timer _qualityTimer = new();
     private readonly Font _fileNameFont = new Font("Consolas", 10F, FontStyle.Bold);
     private readonly Font _notificationFont = new Font("Segoe UI", 12F, FontStyle.Bold);
-    private readonly SolidBrush _fileNameBgBrush = new SolidBrush(Color.FromArgb(150, 0, 0, 0));
+    private readonly SolidBrush _fileNameBgBrush = new SolidBrush(ThemePalette.FileNameBackground);
 
     // Notification
     private string _notificationText = string.Empty;
@@ -56,8 +59,16 @@ public partial class Form1 : Form, IMainView
         SetupPurge();
         SetupRemoveRaw();
         SetupActionButtons();
+        SetupToolTipsAndDragDrop();
         
-        this.FormClosed += (s, e) => _transformMatrix?.Dispose();
+        this.FormClosed += (s, e) =>
+        {
+            _transformMatrix?.Dispose();
+            _dragStartMatrix?.Dispose();
+            _fileNameFont?.Dispose();
+            _notificationFont?.Dispose();
+            _fileNameBgBrush?.Dispose();
+        };
     }
 
     protected override void OnLoad(EventArgs e)
@@ -100,8 +111,8 @@ public partial class Form1 : Form, IMainView
             };
         }
 
-        StyleButton(_btnMaybe, Color.FromArgb(255, 202, 40), Color.FromArgb(255, 179, 0), "⭐", 1);
-        StyleButton(_btnTrash, Color.FromArgb(239, 83, 80), Color.FromArgb(211, 47, 47), "🗑️", 4);
+        StyleButton(_btnMaybe, ThemePalette.StarYellow, ThemePalette.StarYellowHover, "⭐", 1);
+        StyleButton(_btnTrash, ThemePalette.TrashRed, ThemePalette.TrashRedHover, "🗑️", 4);
         
         _btnMaybe.Click += (s, e) => MoveToStagingRequested?.Invoke(this, EventArgs.Empty);
         _btnTrash.Click += (s, e) => DeleteRequested?.Invoke(this, EventArgs.Empty);
@@ -129,28 +140,27 @@ public partial class Form1 : Form, IMainView
     {
         if (_isDarkMode)
         {
-            BackColor = Color.FromArgb(30, 30, 30); ForeColor = Color.White;
-            _picDisplay.BackColor = Color.FromArgb(45, 45, 45);
+            BackColor = ThemePalette.DarkBackground; ForeColor = ThemePalette.DarkText;
+            _picDisplay.BackColor = ThemePalette.DarkSurface;
             _btnThemeToggle.Text = "☀️";
-            _btnThemeToggle.BackColor = Color.FromArgb(217, 60, 60, 60);
-            _btnOrganize.BackColor = Color.FromArgb(45, 45, 45);
+            _btnThemeToggle.BackColor = ThemePalette.DarkButton;
+            _btnOrganize.BackColor = ThemePalette.DarkSurface;
             _btnPurge.BackColor = Color.FromArgb(217, 80, 40, 40);
-            _btnRemoveRaw.BackColor = Color.FromArgb(217, 60, 60, 60);
-            _splitLine.BackColor = Color.FromArgb(60, 60, 60);
+            _btnRemoveRaw.BackColor = ThemePalette.DarkButton;
+            _splitLine.BackColor = ThemePalette.DarkSplitLine;
         }
         else
         {
-            BackColor = SystemColors.Control; ForeColor = SystemColors.ControlText;
-            _picDisplay.BackColor = Color.FromArgb(240, 240, 240);
+            BackColor = ThemePalette.LightBackground; ForeColor = ThemePalette.LightText;
+            _picDisplay.BackColor = ThemePalette.LightSurface;
             _btnThemeToggle.Text = "🌙";
             _btnThemeToggle.BackColor = Color.FromArgb(217, 255, 255, 255);
-            _btnOrganize.BackColor = Color.FromArgb(217, 34, 139, 34);
-            _btnPurge.BackColor = Color.FromArgb(217, 220, 50, 50);
-            _btnRemoveRaw.BackColor = Color.FromArgb(217, 80, 80, 80);
-            _splitLine.BackColor = Color.FromArgb(200, 200, 200);
+            _btnOrganize.BackColor = ThemePalette.OrganizeGreen;
+            _btnPurge.BackColor = ThemePalette.PurgeRed;
+            _btnRemoveRaw.BackColor = ThemePalette.RemoveRawGray;
+            _splitLine.BackColor = ThemePalette.LightSplitLine;
         }
-        Color nav = Color.FromArgb(102, 0, 0, 0);
-        _btnPrev.BackColor = _btnNext.BackColor = _btnRotateLeft.BackColor = _btnRotateRight.BackColor = nav;
+        _btnPrev.BackColor = _btnNext.BackColor = _btnRotateLeft.BackColor = _btnRotateRight.BackColor = ThemePalette.NavOverlay;
         _btnPrev.ForeColor = _btnNext.ForeColor = _btnRotateLeft.ForeColor = _btnRotateRight.ForeColor = Color.White;
     }
 
@@ -158,7 +168,7 @@ public partial class Form1 : Form, IMainView
     {
         void SetRegion(Control btn, bool circular = false) {
             if (btn.ClientRectangle.Width == 0) return;
-            var path = new GraphicsPath();
+            using var path = new GraphicsPath();
             if (circular) {
                 path.AddEllipse(btn.ClientRectangle);
             } else {
@@ -167,7 +177,9 @@ public partial class Form1 : Form, IMainView
                 path.AddArc(rect.Width - r, rect.Height - r, r, r, 0, 90); path.AddArc(rect.X, rect.Height - r, r, r, 90, 90);
                 path.CloseFigure();
             }
+            var oldRegion = btn.Region;
             btn.Region = new Region(path);
+            oldRegion?.Dispose();
         }
 
         var controls = new[] { (_btnOrganize, false), (_btnPurge, false), (_btnRemoveRaw, false), (_btnMaybe, true), (_btnTrash, true) };
@@ -202,7 +214,10 @@ public partial class Form1 : Form, IMainView
 
     public void UpdateStatus(int currentIndex, int totalPhotos, string currentFileName)
     {
-        // Add if needed, currently not used in original Form1 directly to a status bar.
+        if (InvokeRequired) { Invoke(new Action(() => UpdateStatus(currentIndex, totalPhotos, currentFileName))); return; }
+        this.Text = totalPhotos > 0
+            ? $"快速挑選照片 — {currentIndex} / {totalPhotos}"
+            : "快速挑選照片";
     }
 
     public void UpdateExifData(string exifInfo)
@@ -212,38 +227,23 @@ public partial class Form1 : Form, IMainView
         _picDisplay.Invalidate();
     }
 
-    public void DisplayImage(string imagePath, int rotation)
+    public void DisplayImage(Image? image, string fileName)
     {
-        if (InvokeRequired) { Invoke(new Action(() => DisplayImage(imagePath, rotation))); return; }
+        if (InvokeRequired) { Invoke(new Action(() => DisplayImage(image, fileName))); return; }
         
         var old = _picDisplay.Image; 
         _picDisplay.Image = null;
         old?.Dispose();
 
-        _currentFilePath = imagePath;
+        _currentFilePath = fileName;
 
-        if (string.IsNullOrEmpty(imagePath) || !File.Exists(imagePath)) 
+        if (image != null)
         {
-            _picDisplay.Invalidate();
-            return;
+            _picDisplay.Image = image;
+            ResetZoom();
         }
 
-        try {
-            using var stream = new FileStream(imagePath, FileMode.Open, FileAccess.Read);
-            var img = Image.FromStream(stream);
-            if (Array.IndexOf(img.PropertyIdList, 0x0112) > -1) {
-                int orientation = img.GetPropertyItem(0x0112)!.Value![0];
-                RotateFlipType rf = RotateFlipType.RotateNoneFlipNone;
-                switch (orientation) { case 3: rf = RotateFlipType.Rotate180FlipNone; break; case 6: rf = RotateFlipType.Rotate90FlipNone; break; case 8: rf = RotateFlipType.Rotate270FlipNone; break; }
-                if (rf != RotateFlipType.RotateNoneFlipNone) img.RotateFlip(rf);
-            }
-            
-            for (int i = 0; i < rotation; i++) img.RotateFlip(RotateFlipType.Rotate90FlipNone);
-            
-            _picDisplay.Image = img;
-            ResetZoom(); 
-            _picDisplay.Invalidate();
-        } catch { }
+        _picDisplay.Invalidate();
     }
 
     private void SetupZoomAndPan()
@@ -256,7 +256,7 @@ public partial class Form1 : Form, IMainView
             _transformMatrix.Translate(e.X, e.Y, MatrixOrder.Append);
             _isInteracting = true; _qualityTimer.Stop(); _qualityTimer.Start(); _picDisplay.Invalidate();
         };
-        _picDisplay.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) { _isDragging = true; _dragStartMousePos = e.Location; _dragStartMatrix = _transformMatrix.Clone(); } };
+        _picDisplay.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) { _isDragging = true; _dragStartMousePos = e.Location; _dragStartMatrix?.Dispose(); _dragStartMatrix = _transformMatrix.Clone(); } };
         _picDisplay.MouseMove += (s, e) => {
             if (_isDragging) {
                 var newM = _dragStartMatrix.Clone(); newM.Translate(e.X - _dragStartMousePos.X, e.Y - _dragStartMousePos.Y, MatrixOrder.Append);
@@ -284,6 +284,17 @@ public partial class Form1 : Form, IMainView
                         g.FillRectangle(_fileNameBgBrush, rExif); g.DrawString(_exifInfo, _fileNameFont, Brushes.LightGray, rExif.X + 5, rExif.Y + 3);
                     }
                 }
+            }
+            else
+            {
+                string hint = "點擊右下角「📦 整理照片」或直接將資料夾拖曳至此處";
+                var szHint = g.MeasureString(hint, _notificationFont);
+                var hintRect = new RectangleF(
+                    (_picDisplay.Width - szHint.Width) / 2,
+                    (_picDisplay.Height - szHint.Height) / 2,
+                    szHint.Width, szHint.Height);
+                using var hintBrush = new SolidBrush(_isDarkMode ? ThemePalette.DarkMutedText : ThemePalette.LightMutedText);
+                g.DrawString(hint, _notificationFont, hintBrush, hintRect);
             }
             if (!string.IsNullOrEmpty(_notificationText)) {
                 var sz = g.MeasureString(_notificationText, _notificationFont);
@@ -313,12 +324,63 @@ public partial class Form1 : Form, IMainView
         this.KeyDown += (s, e) => {
             if (e.Control && e.KeyCode == Keys.Z) UndoRequested?.Invoke(this, EventArgs.Empty);
             else if (e.KeyCode == Keys.Delete) DeleteRequested?.Invoke(this, EventArgs.Empty);
-            else if (e.KeyCode == Keys.Q) PreviousRequested?.Invoke(this, EventArgs.Empty);
-            else if (e.KeyCode == Keys.E) NextRequested?.Invoke(this, EventArgs.Empty);
+            else if (e.KeyCode == Keys.Q || e.KeyCode == Keys.Left) PreviousRequested?.Invoke(this, EventArgs.Empty);
+            else if (e.KeyCode == Keys.E || e.KeyCode == Keys.Right) NextRequested?.Invoke(this, EventArgs.Empty);
         };
+    }
+
+    private void SetupToolTipsAndDragDrop()
+    {
+        void HandleDragEnter(object? s, DragEventArgs e)
+        {
+            if (e.Data?.GetDataPresent(DataFormats.FileDrop) == true)
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop)!;
+                if (files.Length > 0 && Directory.Exists(files[0]))
+                {
+                    e.Effect = DragDropEffects.Copy;
+                    return;
+                }
+            }
+            e.Effect = DragDropEffects.None;
+        }
+
+        void HandleDragDrop(object? s, DragEventArgs e)
+        {
+            if (e.Data?.GetDataPresent(DataFormats.FileDrop) == true)
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop)!;
+                if (files.Length > 0 && Directory.Exists(files[0]))
+                {
+                    FolderSelected?.Invoke(this, files[0]);
+                }
+            }
+        }
+
+        this.AllowDrop = true;
+        this.DragEnter += HandleDragEnter;
+        this.DragDrop += HandleDragDrop;
+
+        _picDisplay.AllowDrop = true;
+        _picDisplay.DragEnter += HandleDragEnter;
+        _picDisplay.DragDrop += HandleDragDrop;
+
+        var toolTip = new ToolTip();
+        toolTip.SetToolTip(_btnPrev, "上一張 (Q / ←)");
+        toolTip.SetToolTip(_btnNext, "下一張 (E / →)");
+        toolTip.SetToolTip(_btnRotateLeft, "向左旋轉 90°");
+        toolTip.SetToolTip(_btnRotateRight, "向右旋轉 90°");
+        toolTip.SetToolTip(_btnMaybe, "暫存精選 (⭐)");
+        toolTip.SetToolTip(_btnTrash, "移至垃圾桶 (Delete / 🗑️)");
+        toolTip.SetToolTip(_btnThemeToggle, "切換深色 / 淺色主題");
+        toolTip.SetToolTip(_btnOrganize, "選擇照片資料夾 (支援拖曳資料夾至視窗)");
+        toolTip.SetToolTip(_btnPurge, "清空所有暫存資料夾");
+        toolTip.SetToolTip(_btnRemoveRaw, "移除無對應 JPG 的孤立 RAW 檔");
+
+        this.FormClosed += (s, e) => toolTip.Dispose();
     }
 
     private void btnThemeToggle_Click(object sender, EventArgs e) { _isDarkMode = !_isDarkMode; UpdateThemeColors(); SaveThemeSettings(); }
     private void LoadThemeSettings() { try { if (File.Exists(ThemeSettingsFile)) _isDarkMode = File.ReadAllText(ThemeSettingsFile).Trim() == "1"; } catch { } }
-    private void SaveThemeSettings() { try { File.WriteAllText(ThemeSettingsFile, _isDarkMode ? "1" : "0"); } catch { } }
+    private void SaveThemeSettings() { try { Directory.CreateDirectory(ThemeSettingsDir); File.WriteAllText(ThemeSettingsFile, _isDarkMode ? "1" : "0"); } catch { } }
 }

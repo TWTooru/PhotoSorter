@@ -5,7 +5,7 @@ namespace photo.Core.Interfaces
 {
     public interface IMainView
     {
-        void DisplayImage(string imagePath, int rotation);
+        void DisplayImage(Image? image, string fileName);
         void UpdateStatus(int currentIndex, int totalPhotos, string currentFileName);
         void ShowMessage(string message);
         void ShowNotification(string message, Color backColor);

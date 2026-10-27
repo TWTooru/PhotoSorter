@@ -2,6 +2,8 @@ using Xunit;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Threading.Tasks;
 using photo.Core.Interfaces;
 using photo.Core.Models;
 using photo.Core.Presenters;
@@ -11,7 +13,7 @@ namespace photo.Tests.Core.Presenters
     public class MainPresenterTests
     {
         [Fact]
-        public void NextRequested_AdvancesIndexAndUpdatesView()
+        public async Task NextRequested_AdvancesIndexAndUpdatesView()
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
@@ -25,9 +27,11 @@ namespace photo.Tests.Core.Presenters
             var presenter = new MainPresenter(mockView.Object, session);
             
             mockView.Raise(v => v.NextRequested += null, EventArgs.Empty);
+            if (presenter.LastLoadTask != null) await presenter.LastLoadTask;
             
             Assert.Equal(1, session.CurrentIndex);
-            mockView.Verify(v => v.DisplayImage("C:\\test\\2.jpg", 0), Times.Once);
+            mockView.Verify(v => v.DisplayImage(It.IsAny<Image?>(), "2.jpg"), Times.Once);
+            mockView.Verify(v => v.UpdateStatus(2, 2, "2.jpg"), Times.Once);
         }
 
         [Fact]
@@ -74,7 +78,7 @@ namespace photo.Tests.Core.Presenters
         }
 
         [Fact]
-        public void RotateRequested_UpdatesSessionRotationAndUpdatesView()
+        public async Task RotateRequested_UpdatesSessionRotationAndUpdatesView()
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
@@ -88,13 +92,14 @@ namespace photo.Tests.Core.Presenters
             var presenter = new MainPresenter(mockView.Object, session);
             
             mockView.Raise(v => v.RotateRequested += null, mockView.Object, true);
+            if (presenter.LastLoadTask != null) await presenter.LastLoadTask;
             
             Assert.Equal(1, session.GetRotation("C:\\test\\1.jpg"));
-            mockView.Verify(v => v.DisplayImage("C:\\test\\1.jpg", 1), Times.Once);
+            mockView.Verify(v => v.DisplayImage(It.IsAny<Image?>(), "1.jpg"), Times.Once);
         }
 
         [Fact]
-        public void MoveToStagingRequested_MovesFilesAndRecordsUndo()
+        public async Task MoveToStagingRequested_MovesFilesAndRecordsUndo()
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
@@ -110,6 +115,7 @@ namespace photo.Tests.Core.Presenters
             var presenter = new MainPresenter(mockView.Object, session);
             
             mockView.Raise(v => v.MoveToStagingRequested += null, EventArgs.Empty);
+            if (presenter.LastLoadTask != null) await presenter.LastLoadTask;
             
             mockFs.Verify(fs => fs.MoveFile("C:\\test\\1.jpg", "C:\\test\\JPG暫存\\1.jpg"), Times.Once);
             mockFs.Verify(fs => fs.MoveFile("C:\\test\\raw\\1.raw", "C:\\test\\raw暫存\\1.raw"), Times.Once);
@@ -118,7 +124,7 @@ namespace photo.Tests.Core.Presenters
         }
 
         [Fact]
-        public void DeleteRequested_SendsToRecycleBin()
+        public async Task DeleteRequested_SendsToRecycleBin()
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
@@ -134,6 +140,7 @@ namespace photo.Tests.Core.Presenters
             var presenter = new MainPresenter(mockView.Object, session);
             
             mockView.Raise(v => v.DeleteRequested += null, EventArgs.Empty);
+            if (presenter.LastLoadTask != null) await presenter.LastLoadTask;
             
             mockFs.Verify(fs => fs.SendToRecycleBin("C:\\test\\1.jpg"), Times.Once);
             mockFs.Verify(fs => fs.SendToRecycleBin("C:\\test\\raw\\1.raw"), Times.Once);
@@ -141,7 +148,7 @@ namespace photo.Tests.Core.Presenters
         }
 
         [Fact]
-        public void UndoRequested_RevertsMoveToStaging()
+        public async Task UndoRequested_RevertsMoveToStaging()
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
@@ -157,9 +164,11 @@ namespace photo.Tests.Core.Presenters
             
             // First move to staging
             mockView.Raise(v => v.MoveToStagingRequested += null, EventArgs.Empty);
+            if (presenter.LastLoadTask != null) await presenter.LastLoadTask;
             
             // Then undo
             mockView.Raise(v => v.UndoRequested += null, EventArgs.Empty);
+            if (presenter.LastLoadTask != null) await presenter.LastLoadTask;
             
             mockFs.Verify(fs => fs.MoveFile("C:\\test\\JPG暫存\\1.jpg", "C:\\test\\1.jpg"), Times.Once);
             Assert.Single(session.JpgFiles);
@@ -167,7 +176,7 @@ namespace photo.Tests.Core.Presenters
         }
 
         [Fact]
-        public void ExtractAndSendExif_SendsFallbackString_WhenFileDoesNotExist()
+        public async Task ExtractAndSendExif_SendsFallbackString_WhenFileDoesNotExist()
         {
             var mockView = new Mock<IMainView>();
             var mockFs = new Mock<IFileSystemService>();
@@ -182,6 +191,7 @@ namespace photo.Tests.Core.Presenters
             var presenter = new MainPresenter(mockView.Object, session);
             
             mockView.Raise(v => v.NextRequested += null, EventArgs.Empty);
+            if (presenter.LastLoadTask != null) await presenter.LastLoadTask;
             
             mockView.Verify(v => v.UpdateExifData("無 EXIF 資訊"), Times.Once);
         }
